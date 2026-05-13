@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -253,7 +253,7 @@
                 nav_gadget: "Gadgets",
                 nav_dev: "Developer",
                 cs_title: "Coming Soon",
-                cs_desc: "We are working hard to bring you something amazing. Stay tuned for the latest updates from KS Play Foft."
+                cs_desc: "We are working hard to bring you something amazing. Stay tuned for the latest updates from KS Play Foft.",
                 cs_back_btn: "Return to Home"
             }
         };
@@ -313,7 +313,7 @@
 
             const params = new URLSearchParams(window.location.search);
             const langParam = params.get('lang');
-            setLanguage(langParam === 'en' || langParam === 'th' ? langParam : 'th');
+            setLanguage(langParam === 'en' || langParam === 'th' ? langParam : 'en');
         });
     </script>
 </body>
