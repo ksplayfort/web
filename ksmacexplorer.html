@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KSMacExplorer - Ultimate File Manager for Mac</title>
+    <style>
+        /* --- 1. Global Styles --- */
+        :root {
+            --bg-color: #0f0f0f;
+            --card-bg: #1a1a1a;
+            --text-main: #ffffff;
+            --text-sec: #a0a0a0;
+            --accent: #007aff; 
+            --accent-hover: #0056b3;
+            --border: #333333;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        a { text-decoration: none; color: inherit; transition: 0.3s; }
+        ul { list-style: none; }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+        /* --- 2. Navigation --- */
+        nav {
+            background: rgba(15, 15, 15, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 15px 0;
+        }
+
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+
+        .logo { 
+            font-size: 1.2rem; 
+            font-weight: bold; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
+        
+        .logo img {
+            height: 40px;
+            width: auto;
+            border-radius: 8px;
+        }
+
+        .logo span { color: var(--accent); }
+
+        .nav-right { display: flex; align-items: center; gap: 20px; }
+
+        .nav-links { display: flex; gap: 25px; align-items: center; }
+        .nav-links > li > a { font-size: 0.95rem; color: var(--text-sec); cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .nav-links > li > a:hover { color: var(--accent); }
+
+        /* Dropdown Styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown-content {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            background-color: var(--card-bg);
+            min-width: 180px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            z-index: 1;
+            top: 150%; 
+            left: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            transform: translateY(10px);
+        }
+
+        .dropdown:hover .dropdown-content {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+            top: 100%;
+        }
+
+        .dropdown-content a {
+            color: var(--text-main);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .dropdown-content a:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--accent);
+        }
+
+        .lang-switch {
+            display: flex;
+            gap: 5px;
+            border: 1px solid var(--border);
+            padding: 4px;
+            border-radius: 6px;
+            margin-left: 10px;
+        }
+        .lang-btn {
+            background: none;
+            border: none;
+            color: var(--text-sec);
+            cursor: pointer;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+        }
+        .lang-btn.active { background: var(--border); color: white; font-weight: bold; }
+
+        /* --- 3. Hero Section --- */
+        .hero { padding: 80px 0; text-align: center; }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #ffffff, #6eb4ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+
+        .hero p { font-size: 1.2rem; color: var(--text-sec); max-width: 650px; margin: 0 auto 40px auto; }
+
+        .app-preview {
+            margin-top: 40px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 122, 255, 0.2);
+            border: 1px solid var(--border);
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .app-preview img { width: 100%; display: block; }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-download {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.4);
+        }
+        
+        .btn-github {
+            display: inline-block;
+            background: #333333;
+            color: white;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .version-text { margin-top: 15px; font-size: 0.85rem; color: var(--text-sec); }
+
+        /* --- 4. Features --- */
+        .features { padding: 80px 0; background: var(--card-bg); }
+        .section-title { text-align: center; font-size: 2rem; margin-bottom: 50px; }
+        
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-bottom: 60px; }
+        .feature-card {
+            background: var(--bg-color); padding: 30px; border-radius: 16px; border: 1px solid var(--border); text-align: center; transition: 0.3s;
+        }
+        .feature-card:hover { border-color: var(--accent); transform: translateY(-5px); }
+        .icon { font-size: 2.5rem; margin-bottom: 20px; display: block; }
+        .feature-card h3 { margin-bottom: 10px; font-size: 1.2rem; }
+        .feature-card p { color: var(--text-sec); font-size: 0.95rem; }
+
+        .full-feature-list {
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px dashed var(--border);
+        }
+        .full-feature-list h3 { 
+            font-size: 1.5rem; 
+            margin-bottom: 25px; 
+            color: var(--accent); 
+            text-align: center;
+        }
+        .list-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 15px; 
+        }
+        .list-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            color: var(--text-sec);
+            font-size: 0.95rem;
+        }
+        .list-item::before {
+            content: "✓";
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        /* --- 5. Setup & Installation Section --- */
+        .setup-section { padding: 80px 0; background: var(--bg-color); }
+        .setup-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid var(--border);
+        }
+        .setup-card h3 { color: var(--accent); margin-bottom: 15px; font-size: 1.3rem; }
+        .setup-card p { color: var(--text-sec); margin-bottom: 15px; }
+        .setup-card ul, .setup-card ol { color: var(--text-sec); margin-left: 20px; margin-bottom: 20px; line-height: 1.8; }
+        .code-block {
+            background: #000;
+            color: #00ff00;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            margin: 10px 0 25px 0;
+            border: 1px solid #333;
+            overflow-x: auto;
+        }
+
+        /* --- 6. Merchandise --- */
+        .merch { padding: 80px 0; }
+        .merch-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; align-items: center; }
+        .merch-image { flex: 1; min-width: 300px; max-width: 400px; background: var(--card-bg); border-radius: 20px; padding: 20px; border: 1px solid var(--border); }
+        .merch-image img { width: 100%; border-radius: 10px; }
+        .merch-info { flex: 1; min-width: 300px; }
+        .tag { background: var(--accent); color: white; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; }
+        .merch-info h2 { font-size: 2.5rem; margin: 10px 0; }
+        .price { font-size: 1.5rem; color: var(--accent); font-weight: bold; margin-bottom: 20px; }
+        .merch-desc { color: var(--text-sec); margin-bottom: 30px; }
+        .btn-buy { background: white; color: black; padding: 12px 30px; border-radius: 8px; font-weight: bold; border: 1px solid white; cursor: pointer; }
+        .btn-buy:hover { background: transparent; color: white; }
+
+        /* --- 7. Developer & Footer --- */
+        .developer { padding: 60px 0; background: var(--card-bg); text-align: center; border-top: 1px solid var(--border); }
+        .dev-avatar {
+            width: 80px; height: 80px; background-color: var(--border); border-radius: 50%; margin: 0 auto 20px auto;
+            background-image: url('KSname.png');
+            background-size: cover;
+        }
+        footer { padding: 30px 0; text-align: center; color: var(--text-sec); font-size: 0.9rem; border-top: 1px solid var(--border); }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .nav-links { display: none; }
+            .merch-container { flex-direction: column; text-align: center; }
+            .nav-right { gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-content">
+            <div class="logo">
+                <img src="KSMEicon.png" alt="KSMacExplorer Icon" onerror="this.style.display='none'"> KSMacExplorer
+            </div>
+            
+            <div class="nav-right">
+                <ul class="nav-links">
+                    <li><a href="index.html" data-i18n="nav_home">หน้าหลัก</a></li>
+                    
+                    <li class="dropdown">
+                        <a href="#software"><span data-i18n="nav_software">ซอฟต์แวร์</span> ▾</a>
+                        <div class="dropdown-content">
+                            <a href="ks3080.html">ks3080</a>
+                            <a href="ksmacexplorer.html">ksMacExplorer</a>
+                            <a href="ksphotoviewer.html">ksPhotoViewer</a>
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="#gadget"><span data-i18n="nav_gadget">แก็ดเจ็ต</span> ▾</a>
+                        <div class="dropdown-content">
+                            <a href="test.html">ksMindTell</a>
+                        </div>
+                    </li>
+
+                    <li><a href="developer.html" data-i18n="nav_dev">ผู้พัฒนา</a></li>
+                </ul>
+
+                <div class="lang-switch">
+                    <button class="lang-btn active" onclick="setLanguage('th')">TH</button>
+                    <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="container">
+            <h1 data-i18n="hero_title">จัดการไฟล์บน Mac</h1>
+            <p data-i18n="hero_desc">แอปพลิเคชัน File Manager บน Mac ที่ผู้ใช้ Windows อาจคุ้นเคย โค้ดและโครงสร้างทั้งหมดถูกสร้างขึ้นด้วยพลังของ AI ผสานกับ SwiftUI และ AppKit 100%</p>
+            
+            <div class="hero-buttons">
+                <a href="KSMacExplorer_Installer.dmg" class="btn-download" download data-i18n="btn_download">
+                    ดาวน์โหลดฟรี (macOS)
+                </a>
+                <a href="#" target="_blank" class="btn-github" data-i18n="btn_github">
+                    ดู Source Code
+                </a>
+            </div>
+            
+            <div class="version-text" data-i18n="version_info">Version 1.0 | รองรับ macOS 12.0+</div>
+
+            <div class="app-preview">
+                <img src="KSMEscreen.png" alt="KSMacExplorer Screenshot" onerror="this.style.display='none'">
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title" data-i18n="feat_title">คุณสมบัติเด่น</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <span class="icon">⚡</span>
+                    <h3 data-i18n="feat_1_title">Native Performance</h3>
+                    <p data-i18n="feat_1_desc">พัฒนาด้วยภาษา Swift SwiftUI และ AppKit เพื่อให้แอปทำงานรวดเร็วและลื่นไหล</p>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">🖱️</span>
+                    <h3 data-i18n="feat_2_title">Cross-App Drag & Drop</h3>
+                    <p data-i18n="feat_2_desc">รองรับการลากและวางไฟล์ข้ามแอปพลิเคชัน</p>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">🗂️</span>
+                    <h3 data-i18n="feat_3_title">Rich File Operations</h3>
+                    <p data-i18n="feat_3_desc">จัดการไฟล์ด้วย Cut, Copy, Paste และการบีบอัด/แตกไฟล์ (Zip/Unzip)</p>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">👁️</span>
+                    <h3 data-i18n="feat_4_title">Dual View Modes</h3>
+                    <p data-i18n="feat_4_desc">เลือกมุมมอง เปลี่ยนไปมาระหว่าง Icon View และ List View</p>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">🧭</span>
+                    <h3 data-i18n="feat_5_title">Smart Sidebar</h3>
+                    <p data-i18n="feat_5_desc">เข้าถึงโฟลเดอร์หลัก, External Drive และ Google Drive</p>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">🤖</span>
+                    <h3 data-i18n="feat_6_title">โค้ดสร้างโดย AI</h3>
+                    <p data-i18n="feat_6_desc">โปรแกรมนี้ถูกออกแบบโครงสร้างและเขียนซอร์สโค้ดทั้งหมดด้วยเทคโนโลยี AI</p>
+                </div>
+            </div>
+
+            <div class="full-feature-list">
+                <h3 data-i18n="list_title">รายการคุณสมบัติทั้งหมด</h3>
+                <div class="list-grid">
+                    <div class="list-item" data-i18n="li_1">รองรับการเปิดหลายหน้าต่าง (Cmd + N)</div>
+                    <div class="list-item" data-i18n="li_2">ระบบ Drag & Drop ข้ามแอปพลิเคชัน</div>
+                    <div class="list-item" data-i18n="li_3">เมนูคลิกขวา (Context Menu)</div>
+                    <div class="list-item" data-i18n="li_4">ระบบจัดการคลิปบอร์ด (Cut, Copy, Paste)</div>
+                    <div class="list-item" data-i18n="li_5">ช่องค้นหาไฟล์ พร้อมบันทึกประวัติ</div>
+                    <div class="list-item" data-i18n="li_6">Sidebar เข้าถึง Home, Desktop, Documents, Downloads</div>
+                    <div class="list-item" data-i18n="li_7">รองรับ Google Drive</div>
+                    <div class="list-item" data-i18n="li_8">สลับมุมมองแบบ Icon และ List View</div>
+                    <div class="list-item" data-i18n="li_9">ระบบบีบอัดและคลายไฟล์ Zip</div>
+                    <div class="list-item" data-i18n="li_10">Quick Look ดูตัวอย่างไฟล์ด้วยปุ่ม Spacebar</div>
+                    <div class="list-item" data-i18n="li_11">คำนวณขนาดโฟลเดอร์ (Folder Size Calculation)</div>
+                    <div class="list-item" data-i18n="li_12">ระบบเปลี่ยนชื่อไฟล์และโฟลเดอร์ (Inline Renaming)</div>
+                    <div class="list-item" data-i18n="li_13">จัดการถังขยะ (Trash) และ External Drives</div>
+                    <div class="list-item" data-i18n="li_14">ระบบ Monitor โฟลเดอร์ อัปเดตเรียลไทม์</div>
+                    <div class="list-item" data-i18n="li_15">พัฒนาด้วย SwiftUI และ AppKit</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="setup" class="setup-section">
+        <div class="container">
+            <h2 class="section-title" data-i18n="setup_title">การติดตั้งและการตั้งค่าที่สำคัญ</h2>
+            
+            <div class="setup-card">
+                <h3 data-i18n="setup_step1_title">1. การเปิดแอปครั้งแรก (Gatekeeper)</h3>
+                <p data-i18n="setup_step1_desc">เนื่องจากแอปไม่ได้แจกจ่ายผ่าน App Store ระบบ macOS อาจบล็อกและแจ้งเตือนเมื่อเปิดใช้งานครั้งแรก คุณสามารถแก้ไขได้ 3 วิธี:</p>
+                <ul>
+                    <li data-i18n="setup_step1_m1"><strong>วิธีที่ 1:</strong> คลิกขวา (Right-click) ที่ไอคอนแอป KSMacExplorer แล้วเลือก <strong>Open (เปิด)</strong> จากนั้นกดยืนยัน</li>
+                    <li data-i18n="setup_step1_m3"><strong>วิธีที่ 2:</strong> ไปที่ <strong>System Settings</strong> > <strong>Privacy & Security</strong> เลื่อนลงมาที่หัวข้อ Security แล้วคลิกปุ่ม <strong>Open Anyway (อนุญาตต่อไป)</strong></li>
+                    <li data-i18n="setup_step1_m2"><strong>วิธีที่ 3:</strong> เปิดแอป Terminal ใน Mac แล้วคัดลอกคำสั่งด้านล่างนี้ไปรัน เพื่อปลดล็อคแอป:</li>
+                </ul>
+                <div class="code-block">xattr -cr /Applications/KSMacExplorer.app</div>
+
+                <h3 style="margin-top: 40px;" data-i18n="setup_step2_title">2. การอนุญาตให้จัดการไฟล์ (Full Disk Access)</h3>
+                <p data-i18n="setup_step2_desc">เพื่อให้ KSMacExplorer สามารถเข้าถึงและจัดการไฟล์ได้ครอบคลุมทุกโฟลเดอร์ในเครื่อง กรุณาตั้งค่าตามนี้:</p>
+                <ol>
+                    <li data-i18n="setup_step2_l1">ไปที่ <strong>System Settings (การตั้งค่าระบบ)</strong> > <strong>Privacy & Security (ความเป็นส่วนตัวและความปลอดภัย)</strong></li>
+                    <li data-i18n="setup_step2_l2">เลื่อนหาและคลิกที่เมนู <strong>Full Disk Access (การเข้าถึงดิสก์ทั้งหมด)</strong></li>
+                    <li data-i18n="setup_step2_l3">เปิดสวิตช์ด้านหลังแอป <strong>KSMacExplorer</strong></li>
+                    <li data-i18n="setup_step2_l4"><em>(หากไม่พบแอปในรายการ ให้กดปุ่ม <strong>+</strong> ด้านล่าง แล้วเลือกแอป KSMacExplorer เข้าไป)</em></li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    <section id="merch" class="merch">
+        <div class="container">
+            <h2 class="section-title" data-i18n="merch_title">KS Collection</h2>
+            <div class="merch-container">
+                <div class="merch-image">
+                    <img src="KSPVbag.png" alt="KS Tote Bag" onerror="this.style.display='none'">
+                </div>
+                <div class="merch-info">
+                    <span class="tag">Limited Edition</span>
+                    <h2 data-i18n="prod_name">กระเป๋าผ้า KS Signature</h2>
+                    <p class="price">฿300 / $10</p>
+                    <p class="merch-desc" data-i18n="prod_desc">
+                        กระเป๋าผ้าแคนวาสอย่างดี สกรีนลายไอคอนสไตล์มินิมอล 
+                        ทนทาน จุของได้เยอะ เหมาะสำหรับใส่ MacBook และ Gadget ของคุณ
+                    </p>
+                    <button class="btn-buy" id="buyMerchBtn" data-i18n="btn_buy">
+                        สั่งซื้อสินค้า
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="developer" class="developer">
+        <div class="container">
+            <div class="dev-avatar"></div>
+            <h3 data-i18n="dev_name">พัฒนาโดย KS</h3>
+            <p style="color: var(--text-sec); max-width: 500px; margin: 10px auto;" data-i18n="dev_bio">
+                นักพัฒนาแอปพลิเคชันอิสระ ผู้ประยุกต์ใช้พลังของ AI ในการสร้างเครื่องมือที่มีประโยชน์และทรงพลังบน macOS
+            </p>
+            <div style="margin-top: 20px;">
+                <a href="#" style="margin: 0 10px; color: var(--accent);">GitHub</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 KSMacExplorer. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const appConfig = {
+            showMerchSection: false,  // --- ซ่อน ส่วน KS Collection
+            // showMerchSection: true,     // --- แสดง ส่วน KS Collection
+            buyLinkTH: "https://www.example.com/shop-th",
+            buyLinkEN: "https://www.example.com/shop-en" 
+        };
+
+        const translations = {
+            th: {
+                nav_home: "หน้าหลัก",
+                nav_software: "ซอฟต์แวร์",
+                nav_gadget: "แก็ดเจ็ต",
+                nav_dev: "ผู้พัฒนา",
+                hero_title: "จัดการไฟล์บน Mac",
+                hero_desc: "แอปพลิเคชัน File Manager บน Mac ที่ผู้ใช้ Windows อาจคุ้นเคย โค้ดและโครงสร้างทั้งหมดถูกสร้างขึ้นด้วยพลังของ AI ผสานกับ SwiftUI และ AppKit 100%",
+                btn_download: "ดาวน์โหลดฟรี (macOS)",
+                btn_github: "ดู Source Code",
+                version_info: "Version 1.0 | รองรับ macOS 12.0+",
+                feat_title: "คุณสมบัติเด่น",
+                feat_1_title: "Native Performance",
+                feat_1_desc: "พัฒนาด้วยภาษา Swift SwiftUI และ AppKit เพื่อให้แอปทำงานได้รวดเร็วและลื่นไหล",
+                feat_2_title: "Cross-App Drag & Drop",
+                feat_2_desc: "รองรับการลากและวางไฟล์ข้ามแอปพลิเคชัน พร้อมระบบ Copy/Move",
+                feat_3_title: "Rich File Operations",
+                feat_3_desc: "ระบบจัดการไฟล์ Cut, Copy, Paste และการบีบอัด/แตกไฟล์ (Zip/Unzip)",
+                feat_4_title: "Dual View Modes",
+                feat_4_desc: "เลือกมุมมองเปลี่ยนไปมาระหว่าง Icon View และ List View",
+                feat_5_title: "Smart Sidebar",
+                feat_5_desc: "เข้าถึงโฟลเดอร์สำคัญ, External Drive และ Cloud Drive",
+                feat_6_title: "โค้ดสร้างโดย AI",
+                feat_6_desc: "โปรแกรมนี้ถูกออกแบบโครงสร้างและเขียนซอร์สโค้ดทั้งหมดด้วยเทคโนโลยี AI",
+                list_title: "รายการคุณสมบัติทั้งหมด",
+                li_1: "รองรับการเปิดหลายหน้าต่าง (Cmd + N)",
+                li_2: "ระบบ Drag & Drop ข้ามแอปพลิเคชัน",
+                li_3: "เมนูคลิกขวา (Context Menu)",
+                li_4: "ระบบจัดการคลิปบอร์ด (Cut, Copy, Paste)",
+                li_5: "ช่องค้นหาไฟล์ พร้อมบันทึกประวัติ",
+                li_6: "Sidebar เข้าถึง Home, Desktop, Documents, Downloads",
+                li_7: "รองรับ Google Drive",
+                li_8: "สลับมุมมองแบบ Icon และ List View ได้ทันที",
+                li_9: "ระบบบีบอัดและคลายไฟล์ Zip",
+                li_10: "Quick Look ดูตัวอย่างไฟล์ด้วย Spacebar",
+                li_11: "คำนวณขนาดโฟลเดอร์ (Folder Sizes)",
+                li_12: "ระบบเปลี่ยนชื่อ (Inline Renaming)",
+                li_13: "จัดการถังขยะ (Trash) และ External Drives",
+                li_14: "ระบบ Monitor โฟลเดอร์ อัปเดตเรียลไทม์",
+                li_15: "พัฒนาด้วย SwiftUI และ AppKit",
+                setup_title: "การติดตั้งและการตั้งค่าที่สำคัญ",
+                setup_step1_title: "1. การเปิดแอปครั้งแรก (Gatekeeper)",
+                setup_step1_desc: "เนื่องจากแอปไม่ได้แจกจ่ายผ่าน App Store ระบบ macOS อาจบล็อกและแจ้งเตือนเมื่อเปิดใช้งานครั้งแรก คุณสามารถแก้ไขได้ 3 วิธี:",
+                setup_step1_m1: "<strong>วิธีที่ 1:</strong> คลิกขวา (Right-click) ที่ไอคอนแอป KSMacExplorer แล้วเลือก <strong>Open (เปิด)</strong> จากนั้นกดยืนยัน",
+                setup_step1_m3: "<strong>วิธีที่ 2:</strong> ไปที่ <strong>System Settings</strong> > <strong>Privacy & Security</strong> เลื่อนลงมาที่หัวข้อ Security แล้วคลิกปุ่ม <strong>Open Anyway (อนุญาตต่อไป)</strong> เพื่อให้แอปทำงานได้เสมอ",
+                setup_step1_m2: "<strong>วิธีที่ 3:</strong> เปิดแอป Terminal ใน Mac แล้วคัดลอกคำสั่งด้านล่างนี้ไปรัน เพื่อปลดล็อคแอป:",
+                setup_step2_title: "2. การอนุญาตให้จัดการไฟล์ (Full Disk Access)",
+                setup_step2_desc: "เพื่อให้ KSMacExplorer สามารถเข้าถึงและจัดการไฟล์ได้ครอบคลุมทุกโฟลเดอร์ในเครื่อง กรุณาตั้งค่าตามนี้:",
+                setup_step2_l1: "ไปที่ <strong>System Settings (การตั้งค่าระบบ)</strong> > <strong>Privacy & Security (ความเป็นส่วนตัวและความปลอดภัย)</strong>",
+                setup_step2_l2: "เลื่อนหาและคลิกที่เมนู <strong>Full Disk Access (การเข้าถึงดิสก์ทั้งหมด)</strong>",
+                setup_step2_l3: "เปิดสวิตช์ด้านหลังแอป <strong>KSMacExplorer</strong>",
+                setup_step2_l4: "<em>(หากไม่พบแอปในรายการ ให้กดปุ่ม <strong>+</strong> ด้านล่าง แล้วเลือกแอป KSMacExplorer เข้าไป)</em>",
+                merch_title: "ของสะสม KS",
+                prod_name: "กระเป๋าผ้า KS Signature",
+                prod_desc: "กระเป๋าผ้าแคนวาส สกรีนลายไอคอนสไตล์มินิมอล ทนทาน จุของได้เยอะ เหมาะสำหรับใส่ MacBook และ Gadget ของคุณ",
+                btn_buy: "สั่งซื้อสินค้า",
+                dev_name: "พัฒนาโดย KS",
+                dev_bio: "นักพัฒนาแอปพลิเคชันอิสระ ผู้ประยุกต์ใช้พลังของ AI ในการสร้างเครื่องมือที่มีประโยชน์และทรงพลังบน macOS"
+            },
+            en: {
+                nav_home: "Home",
+                nav_software: "Software",
+                nav_gadget: "Gadgets",
+                nav_dev: "Developer",
+                hero_title: "Ultimate Mac File Explorer",
+                hero_desc: "A Mac File Manager familiar to Windows users, with its entire code and structure built by AI.",
+                btn_download: "Download Free (macOS)",
+                btn_github: "View Source Code",
+                version_info: "Version 1.0 | Requires macOS 12.0+",
+                feat_title: "Key Features",
+                feat_1_title: "Native Performance",
+                feat_1_desc: "Built entirely with Swift, SwiftUI and AppKit for blazing-fast speed and low memory footprint.",
+                feat_2_title: "Cross-App Drag & Drop",
+                feat_2_desc: "Drag and drop files across different applications with copy and move logic.",
+                feat_3_title: "Rich File Operations",
+                feat_3_desc: "Full support for copy, cut, paste, zip compression, and unzipping directly from the app interface.",
+                feat_4_title: "Dual View Modes",
+                feat_4_desc: "Switch between Icon View and List View to match your personal workflow.",
+                feat_5_title: "Smart Sidebar",
+                feat_5_desc: "Quickly access your home folders, external drives, and Cloud Drive.",
+                feat_6_title: "AI-Generated Code",
+                feat_6_desc: "The architecture and source code of this application were crafted entirely using advanced AI technology.",
+                list_title: "Full Feature List",
+                li_1: "Multi-window (Cmd + N)",
+                li_2: "Cross-app Drag & Drop",
+                li_3: "Rich Context Menu",
+                li_4: "Clipboard management (Cut, Copy, Paste)",
+                li_5: "Search bar with history tracking",
+                li_6: "Quick access Sidebar for main folders",
+                li_7: "Google Drive support",
+                li_8: "Icon View & List View toggle",
+                li_9: "Built-in Zip/Unzip",
+                li_10: "Quick Look via Spacebar",
+                li_11: "Automatic folder size calculation",
+                li_12: "Inline renaming",
+                li_13: "Trash & External Drive support",
+                li_14: "Live folder monitoring & auto-refresh",
+                li_15: "Native SwiftUI & AppKit",
+                setup_title: "Installation & Setup Guide",
+                setup_step1_title: "1. Opening the App for the First Time (Gatekeeper)",
+                setup_step1_desc: "Because the app is not distributed via the Mac App Store, macOS might block it initially. You can bypass this in three ways:",
+                setup_step1_m1: "<strong>Method 1:</strong> Right-click the KSMacExplorer icon and select <strong>Open</strong>, then confirm.",
+                setup_step1_m3: "<strong>Method 2:</strong> Go to <strong>System Settings</strong> > <strong>Privacy & Security</strong>, scroll down to the Security section, and click <strong>Open Anyway</strong> to allow the app to run.",
+                setup_step1_m2: "<strong>Method 3:</strong> Open the Terminal app and run this command to remove the quarantine flag:",
+                setup_step2_title: "2. Granting Full Disk Access",
+                setup_step2_desc: "To allow the app to fully manage files across your entire system, you need to grant it Full Disk Access:",
+                setup_step2_l1: "Go to <strong>System Settings</strong> > <strong>Privacy & Security</strong>.",
+                setup_step2_l2: "Scroll down and select <strong>Full Disk Access</strong>.",
+                setup_step2_l3: "Toggle the switch on for <strong>KSMacExplorer</strong>.",
+                setup_step2_l4: "<em>(If KSMacExplorer is not listed, click the <strong>+</strong> button at the bottom to add it manually)</em>.",
+                merch_title: "KS Collection",
+                prod_name: "KS Signature Tote Bag",
+                prod_desc: "Premium canvas tote bag featuring a minimalist icon design. Durable, spacious, and perfect for carrying your MacBook.",
+                btn_buy: "Buy Now",
+                dev_name: "Developed by KS",
+                dev_bio: "Independent developer utilizing the power of AI to create useful and powerful tools for macOS."
+            }
+        };
+
+        function setLanguage(lang) {
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.innerHTML = translations[lang][key];
+                }
+            });
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = Array.from(document.querySelectorAll('.lang-btn')).find(btn => btn.innerText.toLowerCase() === lang);
+            if(activeBtn) activeBtn.classList.add('active');
+            
+            document.documentElement.lang = lang;
+            
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.set('lang', lang);
+            window.history.pushState({}, '', newUrl);
+
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                let href = link.getAttribute('href');
+                if (href) {
+                    let baseHref = href.split('?')[0]; 
+                    if (!baseHref.startsWith('#') && !baseHref.startsWith('javascript:')) {
+                        link.setAttribute('href', baseHref + '?lang=' + lang); 
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const langParam = params.get('lang');
+            
+            if (langParam === 'en' || langParam === 'th') {
+                setLanguage(langParam);
+            } else {
+                setLanguage('th');
+            }
+
+            const merchSection = document.getElementById('merch');
+            if (merchSection && !appConfig.showMerchSection) {
+                merchSection.style.display = 'none';
+            }
+
+            const buyMerchBtn = document.getElementById('buyMerchBtn');
+            if (buyMerchBtn) {
+                buyMerchBtn.addEventListener('click', () => {
+                    const currentLang = document.documentElement.lang || 'th';
+                    const targetLink = currentLang === 'th' ? appConfig.buyLinkTH : appConfig.buyLinkEN;
+                    window.open(targetLink, '_blank'); 
+                });
+            }
+        });
+    </script>
+</body>
+</html>

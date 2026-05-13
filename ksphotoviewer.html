@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KSPhotoViewer - The Fast Photo Viewer for Mac</title>
+    <style>
+        /* --- 1. Global Styles --- */
+        :root {
+            --bg-color: #0f0f0f;
+            --card-bg: #1a1a1a;
+            --text-main: #ffffff;
+            --text-sec: #a0a0a0;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --border: #333333;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        a { text-decoration: none; color: inherit; transition: 0.3s; }
+        ul { list-style: none; }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+        /* --- 2. Navigation --- */
+        nav {
+            background: rgba(15, 15, 15, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 15px 0;
+        }
+
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+
+        .logo { 
+            font-size: 1.2rem; 
+            font-weight: bold; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
+        
+        .logo img {
+            height: 40px;
+            width: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .logo span { color: var(--accent); }
+
+        .nav-right { display: flex; align-items: center; gap: 20px; }
+
+        .nav-links { display: flex; gap: 25px; align-items: center; }
+        .nav-links > li > a { font-size: 0.95rem; color: var(--text-sec); cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .nav-links > li > a:hover { color: var(--accent); }
+
+        /* Dropdown Styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown-content {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            background-color: var(--card-bg);
+            min-width: 180px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            z-index: 1;
+            top: 150%;
+            left: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            transform: translateY(10px);
+        }
+
+        .dropdown:hover .dropdown-content {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+            top: 100%;
+        }
+
+        .dropdown-content a {
+            color: var(--text-main);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .dropdown-content a:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--accent);
+        }
+
+        .btn-nav {
+            background: var(--accent);
+            color: white !important;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        .btn-nav:hover { background: var(--accent-hover); }
+
+        /* Language Switcher */
+        .lang-switch {
+            display: flex;
+            gap: 5px;
+            border: 1px solid var(--border);
+            padding: 4px;
+            border-radius: 6px;
+            margin-left: 10px;
+        }
+        .lang-btn {
+            background: none;
+            border: none;
+            color: var(--text-sec);
+            cursor: pointer;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+        .lang-btn.active { background: var(--border); color: white; font-weight: bold; }
+
+        /* --- 3. Hero Section --- */
+        .hero { padding: 80px 0; text-align: center; }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #fff, #999);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p { font-size: 1.2rem; color: var(--text-sec); max-width: 650px; margin: 0 auto 40px auto; }
+
+        .app-preview {
+            margin-top: 40px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 1px solid var(--border);
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .app-preview img { width: 100%; display: block; }
+
+        /* Button Container */
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-download {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+        .btn-download:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6); }
+        
+        .btn-github {
+            display: inline-block;
+            background: #333333;
+            color: white;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+        .btn-github:hover { background: #444444; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6); }
+
+        .version-text { margin-top: 15px; font-size: 0.85rem; color: var(--text-sec); }
+
+        /* --- 4. Features --- */
+        .features { padding: 80px 0; background: var(--card-bg); }
+        .section-title { text-align: center; font-size: 2rem; margin-bottom: 50px; }
+        
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
+        .feature-card {
+            background: var(--bg-color); padding: 30px; border-radius: 16px; border: 1px solid var(--border); text-align: center; transition: 0.3s;
+        }
+        .feature-card:hover { border-color: var(--accent); transform: translateY(-5px); }
+        .icon { font-size: 2.5rem; margin-bottom: 20px; display: block; }
+        .feature-card h3 { margin-bottom: 10px; font-size: 1.2rem; }
+        .feature-card p { color: var(--text-sec); font-size: 0.95rem; }
+
+        /* --- 5. Setup (New Section) --- */
+        .setup { padding: 80px 0; background: var(--bg-color); }
+        .setup-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 30px; }
+        .setup-card { background: var(--card-bg); padding: 30px; border-radius: 16px; border: 1px solid var(--border); }
+        .setup-card h3 { color: var(--accent); margin-bottom: 20px; font-size: 1.2rem; }
+        .setup-card ol { margin-left: 20px; color: var(--text-sec); line-height: 1.8; }
+        .setup-card li { margin-bottom: 15px; }
+        .setup-card b { color: var(--text-main); }
+        .code-block { 
+            background: #000000; 
+            padding: 15px; 
+            border-radius: 8px; 
+            font-family: 'Courier New', Courier, monospace; 
+            color: #4ade80; 
+            display: block; 
+            margin-top: 15px; 
+            word-break: break-all;
+            border: 1px solid #333;
+        }
+
+        /* --- 6. Merchandise --- */
+        .merch { padding: 80px 0; background: var(--card-bg); }
+        .merch-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; align-items: center; }
+        .merch-image { flex: 1; min-width: 300px; max-width: 400px; background: var(--bg-color); border-radius: 20px; padding: 20px; border: 1px solid var(--border); }
+        .merch-image img { width: 100%; border-radius: 10px; }
+        .merch-info { flex: 1; min-width: 300px; }
+        .tag { background: #ff4757; color: white; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; }
+        .merch-info h2 { font-size: 2.5rem; margin: 10px 0; }
+        .price { font-size: 1.5rem; color: var(--accent); font-weight: bold; margin-bottom: 20px; }
+        .merch-desc { color: var(--text-sec); margin-bottom: 30px; }
+        .btn-buy { background: white; color: black; padding: 12px 30px; border-radius: 8px; font-weight: bold; border: 1px solid white; cursor: pointer; }
+        .btn-buy:hover { background: transparent; color: white; }
+
+        /* --- 7. Developer & Footer --- */
+        .developer { padding: 60px 0; background: var(--bg-color); text-align: center; border-top: 1px solid var(--border); }
+        .dev-avatar {
+            width: 80px; height: 80px; background-color: var(--border); border-radius: 50%; margin: 0 auto 20px auto;
+            background-image: url('KSname.png');
+            background-size: cover;
+        }
+        footer { padding: 30px 0; text-align: center; color: var(--text-sec); font-size: 0.9rem; border-top: 1px solid var(--border); background: var(--card-bg); }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .nav-links { display: none; }
+            .merch-container { flex-direction: column; text-align: center; }
+            .nav-right { gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-content">
+            <div class="logo">
+                <img src="KSPVicon.png" alt="KSPhotoViewer Icon"> KSPhotoViewer
+            </div>
+            
+            <div class="nav-right">
+                <ul class="nav-links">
+                    <li><a href="index.html" data-i18n="nav_home">หน้าหลัก</a></li>
+                    
+                    <li class="dropdown">
+                        <a href="#software"><span data-i18n="nav_software">ซอฟต์แวร์</span> ▾</a>
+                        <div class="dropdown-content">
+                            <a href="ks3080.html">ks3080</a>
+                            <a href="ksmacexplorer.html">ksMacExplorer</a>
+                            <a href="ksphotoviewer.html">ksPhotoViewer</a>
+                        </div>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="#gadget"><span data-i18n="nav_gadget">แก็ดเจ็ต</span> ▾</a>
+                        <div class="dropdown-content">
+                            <a href="test.html">ksMindTell</a>
+                        </div>
+                    </li>
+
+                    <li><a href="#setup" data-i18n="nav_setup">การตั้งค่า</a></li>
+
+                    <li><a href="developer.html" data-i18n="nav_dev">ผู้พัฒนา</a></li>
+                </ul>
+
+                <div class="lang-switch">
+                    <button class="lang-btn active" onclick="setLanguage('th')">TH</button>
+                    <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="container">
+            <h1 data-i18n="hero_title">โปรแกรมดูรูปที่ใช่<br>สำหรับ macOS</h1>
+            <p data-i18n="hero_desc">เร็ว แรง เบาเครื่อง พร้อมฟีเจอร์ตัดต่อพื้นฐาน และรองรับการเล่นไฟล์วิดีโอ (MP4, MOV) โค้ดทั้งหมดสร้างขึ้นโดย AI พัฒนาด้วย Swift แท้ 100%</p>
+            
+            <div class="hero-buttons">
+                <a href="KSPhotoViewer_Installer.dmg" class="btn-download" download data-i18n="btn_download">
+                    ดาวน์โหลดฟรี (macOS)
+                </a>
+                <a href="#" target="_blank" class="btn-github" data-i18n="btn_github">
+                    ดาวน์โหลด Source Code
+                </a>
+            </div>
+            
+            <div class="version-text" data-i18n="version_info">Version 1.0 (Build 1) | รองรับ macOS 12+</div>
+
+            <div class="app-preview">
+                <img src="KSPVscreen.png" alt="KSPhotoViewer Screenshot">
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title" data-i18n="feat_title">ทำอะไรได้บ้าง?</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <span class="icon">🚀</span>
+                    <h3 data-i18n="feat_1_title">เร็วและลื่นไหล</h3>
+                    <p data-i18n="feat_1_desc">เขียนด้วย SwiftUI ทั้งระบบ ทำให้เปิดรูปไว กินทรัพยากรน้อยมาก</p>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">✂️</span>
+                    <h3 data-i18n="feat_2_title">Crop & Edit</h3>
+                    <p data-i18n="feat_2_desc">ตัดส่วนภาพ หมุนภาพ ปรับแสงสี ได้ง่ายๆ ในหน้าต่างเดียว</p>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">ℹ️</span>
+                    <h3 data-i18n="feat_3_title">ดู Metadata ลึก</h3>
+                    <p data-i18n="feat_3_desc">แสดงข้อมูล EXIF เช่น รุ่นกล้อง, ISO, รูรับแสง อย่างละเอียด</p>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">📂</span>
+                    <h3 data-i18n="feat_4_title">จัดการไฟล์ง่าย</h3>
+                    <p data-i18n="feat_4_desc">เปิดทั้งโฟลเดอร์ เซฟทับไฟล์เดิม หรือเซฟเป็นไฟล์ใหม่ได้ทันที</p>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">🎬</span>
+                    <h3 data-i18n="feat_5_title">เล่นไฟล์วิดีโอ</h3>
+                    <p data-i18n="feat_5_desc">รองรับการเล่นไฟล์วิดีโอยอดนิยมอย่าง MP4 และ MOV ได้ในตัวอย่างลื่นไหล</p>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">🤖</span>
+                    <h3 data-i18n="feat_6_title">โค้ดสร้างโดย AI</h3>
+                    <p data-i18n="feat_6_desc">โปรแกรมนี้ถูกสร้างโครงสร้างและเขียนโค้ดด้วยเทคโนโลยี AI อันชาญฉลาด</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="setup" class="setup">
+        <div class="container">
+            <h2 class="section-title" data-i18n="setup_title">การอนุญาตใช้งานแอปพลิเคชัน</h2>
+            <p style="text-align: center; color: var(--text-sec); margin-top: -30px; margin-bottom: 40px;" data-i18n="setup_subtitle">เนื่องจากแอปนี้เป็นแอปนอก App Store กรุณาทำตามวิธีใดวิธีหนึ่งด้านล่างเพื่ออนุญาตให้ macOS รันแอปพลิเคชันได้</p>
+            
+            <div class="setup-grid">
+                <div class="setup-card">
+                    <h3 data-i18n="setup_m1_title">วิธีที่ 1: ตั้งค่าผ่าน System Settings (แนะนำ)</h3>
+                    <ol>
+                        <li data-i18n="setup_m1_s1">คัดลอกไฟล์แอปไปไว้ในโฟลเดอร์ <b>Applications</b></li>
+                        <li data-i18n="setup_m1_s2">ลองดับเบิ้ลคลิกเปิดแอปครั้งแรก หากมีหน้าต่างเตือนว่าเปิดไม่ได้ ให้คลิกปุ่ม <b>Cancel (ยกเลิก)</b></li>
+                        <li data-i18n="setup_m1_s3">ไปที่เมนูแอปเปิ้ล () เลือก <b>System Settings</b> > <b>Privacy & Security</b></li>
+                        <li data-i18n="setup_m1_s4">เลื่อนลงมาส่วนของ Security จะพบข้อความแจ้งว่า KSPhotoViewer ถูกบล็อก ให้คลิกปุ่ม <b>Open Anyway (เปิดต่อไป)</b></li>
+                        <li data-i18n="setup_m1_s5"><b>การอนุญาตแจ้งเตือน:</b> หากต้องการให้แอปแจ้งเตือนเมื่อบันทึกรูปภาพสำเร็จ ไปที่ <b>System Settings</b> > <b>Notifications</b> ค้นหา KSPhotoViewer และเปิด <b>Allow Notifications</b></li>
+                    </ol>
+                </div>
+                
+                <div class="setup-card">
+                    <h3 data-i18n="setup_m2_title">วิธีที่ 2: ตั้งค่าผ่าน Terminal (รวดเร็ว)</h3>
+                    <ol>
+                        <li data-i18n="setup_m2_s1">ตรวจสอบให้แน่ใจว่าได้คัดลอกแอปไปไว้ในโฟลเดอร์ <b>Applications</b> แล้ว</li>
+                        <li data-i18n="setup_m2_s2">เปิดโปรแกรม <b>Terminal</b> (ค้นหาผ่าน Spotlight: cmd + spacebar)</li>
+                        <li data-i18n="setup_m2_s3">คัดลอกคำสั่งด้านล่างนี้ไปวางใน Terminal แล้วกด Enter:</li>
+                    </ol>
+                    <code class="code-block">xattr -cr /Applications/KSPhotoViewer.app</code>
+                    <p style="color: var(--text-sec); font-size: 0.85rem; margin-top: 15px;" data-i18n="setup_m2_note">* คำสั่งนี้ใช้เพื่อลบแอตทริบิวต์ Quarantine ของไฟล์ ช่วยให้ macOS ข้ามการตรวจสอบและสามารถเปิดแอปได้ตามปกติ</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="merch" class="merch">
+        <div class="container">
+            <h2 class="section-title" data-i18n="merch_title">KS Collection</h2>
+            <div class="merch-container">
+                <div class="merch-image">
+                    <img src="KSPVbag.png" alt="KS Tote Bag">
+                </div>
+                <div class="merch-info">
+                    <span class="tag">Limited Edition</span>
+                    <h2 data-i18n="prod_name">กระเป๋าผ้า KS Signature</h2>
+                    <p class="price">฿300 / $10</p>
+                    <p class="merch-desc" data-i18n="prod_desc">
+                        กระเป๋าผ้าแคนวาสอย่างดี สกรีนลายไอคอน KSPhotoViewer สไตล์มินิมอล 
+                        ทนทาน จุของได้เยอะ เหมาะสำหรับใส่ MacBook และ Gadget ของคุณ
+                    </p>
+                    <button class="btn-buy" id="buyMerchBtn" data-i18n="btn_buy">
+                        สั่งซื้อสินค้า
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="developer" class="developer">
+        <div class="container">
+            <div class="dev-avatar"></div>
+            <h3 data-i18n="dev_name">พัฒนาโดย KS</h3>
+            <p style="color: var(--text-sec); max-width: 500px; margin: 10px auto;" data-i18n="dev_bio">
+                นักพัฒนาแอปพลิเคชันอิสระ ผู้ประยุกต์ใช้พลังของ AI ในการสร้างเครื่องมือที่มีประโยชน์บน macOS
+            </p>
+            <div style="margin-top: 20px;">
+                <a href="#" style="margin: 0 10px; color: var(--accent);">GitHub</a>
+                <a href="#" style="margin: 0 10px; color: var(--accent);">Twitter</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 KSPhotoViewer. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- การตั้งค่าเปิด/ปิดส่วนลดสินค้า (KS Collection) และลิงก์การสั่งซื้อ ---
+        const appConfig = {
+            // showMerchSection: false,  // --- ซ่อน ส่วน KS Collection
+            showMerchSection: true,     // --- แสดง ส่วน KS Collection
+            buyLinkTH: "https://www.example.com/shop-th", // ลิงก์ปลายทางสำหรับสั่งซื้อภาษาไทย
+            buyLinkEN: "https://www.example.com/shop-en"  // ลิงก์ปลายทางสำหรับสั่งซื้อภาษาอังกฤษ
+        };
+
+        const translations = {
+            th: {
+                nav_home: "หน้าหลัก",
+                nav_software: "ซอฟต์แวร์",
+                nav_gadget: "แก็ดเจ็ต",
+                nav_features: "คุณสมบัติ",
+                nav_setup: "การตั้งค่า",
+                nav_merch: "สินค้า",
+                nav_dev: "ผู้พัฒนา",
+                nav_other: "Product อื่นๆ",
+                hero_title: "โปรแกรมดูรูปที่ใช่<br>สำหรับ macOS",
+                hero_desc: "เร็ว แรง เบาเครื่อง พร้อมฟีเจอร์ตัดต่อพื้นฐาน และรองรับการเล่นไฟล์วิดีโอ (MP4, MOV) โค้ดทั้งหมดสร้างขึ้นโดย AI พัฒนาด้วย Swift แท้ 100%",
+                btn_download: "ดาวน์โหลดฟรี (macOS)",
+                btn_github: "ดาวน์โหลด Source Code (GitHub)",
+                version_info: "Version 1.0 (Build 1) | รองรับ macOS 12+",
+                
+                feat_title: "ทำอะไรได้บ้าง?",
+                feat_1_title: "เร็วและลื่นไหล",
+                feat_1_desc: "เขียนด้วย SwiftUI ทั้งระบบ ทำให้เปิดรูปไว กินทรัพยากรน้อยมาก",
+                feat_2_title: "Crop & Edit",
+                feat_2_desc: "ตัดส่วนภาพ หมุนภาพ ปรับแสงสี ได้ง่ายๆ ในหน้าต่างเดียว",
+                feat_3_title: "ดู Metadata ลึก",
+                feat_3_desc: "แสดงข้อมูล EXIF เช่น รุ่นกล้อง, ISO, รูรับแสง อย่างละเอียด",
+                feat_4_title: "จัดการไฟล์ง่าย",
+                feat_4_desc: "เปิดทั้งโฟลเดอร์ เซฟทับไฟล์เดิม หรือเซฟเป็นไฟล์ใหม่ได้ทันที",
+                feat_5_title: "เล่นไฟล์วิดีโอ",
+                feat_5_desc: "รองรับการเล่นไฟล์วิดีโอยอดนิยมอย่าง MP4 และ MOV ได้ในตัวอย่างลื่นไหล",
+                feat_6_title: "โค้ดสร้างโดย AI",
+                feat_6_desc: "โปรแกรมนี้ถูกสร้างโครงสร้างและเขียนโค้ดด้วยเทคโนโลยี AI อันชาญฉลาด",
+                
+                setup_title: "การอนุญาตใช้งานแอปพลิเคชัน",
+                setup_subtitle: "เนื่องจากแอปนี้เป็นแอปนอก App Store กรุณาทำตามวิธีใดวิธีหนึ่งด้านล่างเพื่ออนุญาตให้ macOS รันแอปพลิเคชันได้",
+                setup_m1_title: "วิธีที่ 1: ตั้งค่าผ่าน System Settings (แนะนำ)",
+                setup_m1_s1: "คัดลอกไฟล์แอปไปไว้ในโฟลเดอร์ <b>Applications</b>",
+                setup_m1_s2: "ลองดับเบิ้ลคลิกเปิดแอปครั้งแรก หากมีหน้าต่างเตือนว่าเปิดไม่ได้ ให้คลิกปุ่ม <b>Cancel (ยกเลิก)</b>",
+                setup_m1_s3: "ไปที่เมนูแอปเปิ้ล () เลือก <b>System Settings</b> > <b>Privacy & Security</b>",
+                setup_m1_s4: "เลื่อนลงมาส่วนของ Security จะพบข้อความแจ้งว่า KSPhotoViewer ถูกบล็อก ให้คลิกปุ่ม <b>Open Anyway (เปิดต่อไป)</b>",
+                setup_m1_s5: "<b>การอนุญาตแจ้งเตือน:</b> หากต้องการให้แอปแจ้งเตือนเมื่อบันทึกรูปภาพสำเร็จ ไปที่ <b>System Settings</b> > <b>Notifications</b> ค้นหา KSPhotoViewer และเปิด <b>Allow Notifications</b>",
+                setup_m2_title: "วิธีที่ 2: ตั้งค่าผ่าน Terminal (รวดเร็ว)",
+                setup_m2_s1: "ตรวจสอบให้แน่ใจว่าได้คัดลอกแอปไปไว้ในโฟลเดอร์ <b>Applications</b> แล้ว",
+                setup_m2_s2: "เปิดโปรแกรม <b>Terminal</b> (ค้นหาผ่าน Spotlight: cmd + spacebar)",
+                setup_m2_s3: "คัดลอกคำสั่งด้านล่างนี้ไปวางใน Terminal แล้วกด Enter:",
+                setup_m2_note: "* คำสั่งนี้ใช้เพื่อลบแอตทริบิวต์ Quarantine ของไฟล์ ช่วยให้ macOS ข้ามการตรวจสอบและสามารถเปิดแอปได้ตามปกติ",
+
+                merch_title: "ของสะสม KS",
+                prod_name: "กระเป๋าผ้า KS Signature",
+                prod_desc: "กระเป๋าผ้าแคนวาส สกรีนลายไอคอน KSPhotoViewer สไตล์มินิมอล ทนทาน จุของได้เยอะ เหมาะสำหรับใส่ MacBook และ Gadget ของคุณ",
+                btn_buy: "สั่งซื้อสินค้า",
+                dev_name: "พัฒนาโดย KS",
+                dev_bio: "นักพัฒนาแอปพลิเคชันอิสระ ผู้ประยุกต์ใช้พลังของ AI ในการสร้างเครื่องมือที่มีประโยชน์บน macOS"
+            },
+            en: {
+                nav_home: "Home",
+                nav_software: "Software",
+                nav_gadget: "Gadgets",
+                nav_features: "Features",
+                nav_setup: "Setup",
+                nav_merch: "Merch",
+                nav_dev: "Developer",
+                nav_other: "Other Products",
+                hero_title: "The Photo Viewer<br>You've Been Waiting For",
+                hero_desc: "Fast, lightweight, and powerful. View, crop, check metadata, and play videos (MP4, MOV). Code fully generated by AI, built 100% with Swift.",
+                btn_download: "Download Free (macOS)",
+                btn_github: "Download Source Code (GitHub)",
+                version_info: "Version 1.0 (Build 1) | Requires macOS 12+",
+                
+                feat_title: "Key Features",
+                feat_1_title: "Fast",
+                feat_1_desc: "Built with SwiftUI for native performance and minimal resource usage.",
+                feat_2_title: "Crop & Edit",
+                feat_2_desc: "Easily crop, rotate, and adjust lighting in a single window.",
+                feat_3_title: "Metadata",
+                feat_3_desc: "View detailed EXIF data like camera model, ISO, aperture, and more.",
+                feat_4_title: "Easy Management",
+                feat_4_desc: "Open folders, overwrite files, or save copies seamlessly.",
+                feat_5_title: "Video Support",
+                feat_5_desc: "Seamlessly play popular video formats like MP4 and MOV directly in the app.",
+                feat_6_title: "AI-Generated Code",
+                feat_6_desc: "The architecture and codebase of this application were crafted entirely by AI.",
+
+                setup_title: "App Installation & Setup",
+                setup_subtitle: "As an app outside the Mac App Store, please follow one of the methods below to allow macOS to run it.",
+                setup_m1_title: "Method 1: System Settings (Recommended)",
+                setup_m1_s1: "Copy the app into your <b>Applications</b> folder.",
+                setup_m1_s2: "Try opening the app. If a warning appears saying it cannot be opened, click <b>Cancel</b>.",
+                setup_m1_s3: "Go to the Apple menu () > <b>System Settings</b> > <b>Privacy & Security</b>.",
+                setup_m1_s4: "Scroll down to the Security section. You will see a message about KSPhotoViewer being blocked. Click <b>Open Anyway</b>.",
+                setup_m1_s5: "<b>Allow Notifications:</b> To get alerts when saving images, go to <b>System Settings</b> > <b>Notifications</b>, find KSPhotoViewer, and toggle on <b>Allow Notifications</b>.",
+                setup_m2_title: "Method 2: Using Terminal (Fast)",
+                setup_m2_s1: "Ensure you have copied the app to the <b>Applications</b> folder.",
+                setup_m2_s2: "Open the <b>Terminal</b> app (search via Spotlight: cmd + spacebar).",
+                setup_m2_s3: "Copy and paste the command below, then press Enter:",
+                setup_m2_note: "* This command removes the quarantine attribute from the app, allowing macOS to bypass the security block and open it normally.",
+
+                merch_title: "KS Collection",
+                prod_name: "KS Signature Tote Bag",
+                prod_desc: "Premium canvas tote bag featuring the minimalist KSPhotoViewer icon. Durable, spacious, and perfect for carrying your MacBook.",
+                btn_buy: "Buy Now",
+                dev_name: "Developed by KS",
+                dev_bio: "Independent developer utilizing the power of AI to create useful tools for macOS."
+            }
+        };
+
+        // ฟังก์ชันเปลี่ยนภาษา
+        function setLanguage(lang) {
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.innerHTML = translations[lang][key];
+                }
+            });
+
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = Array.from(document.querySelectorAll('.lang-btn')).find(btn => btn.innerText.toLowerCase() === lang);
+            if(activeBtn) activeBtn.classList.add('active');
+
+            document.documentElement.lang = lang;
+
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.set('lang', lang);
+            window.history.pushState({}, '', newUrl);
+
+            // อัปเดตลิงก์ในเมนูหลักทั้งหมด ให้ส่งค่า lang ไปยังไฟล์ปลายทาง
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                let href = link.getAttribute('href');
+                if (href) {
+                    let baseHref = href.split('?')[0]; // ตัด parameter เดิมออก (ถ้ามี)
+                    if (!baseHref.startsWith('#') && !baseHref.startsWith('javascript:')) {
+                        link.setAttribute('href', baseHref + '?lang=' + lang); // แนบภาษาปัจจุบันเข้าไปใหม่
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const langParam = params.get('lang');
+            
+            if (langParam === 'en' || langParam === 'th') {
+                setLanguage(langParam);
+            } else {
+                setLanguage('th');
+            }
+
+            // ตรวจสอบตั้งค่าและซ่อนส่วนสินค้าหากไม่ได้เปิดใช้งาน
+            const merchSection = document.getElementById('merch');
+            if (merchSection && !appConfig.showMerchSection) {
+                merchSection.style.display = 'none';
+            }
+
+            // ตั้งค่าลิงก์ปุ่มสั่งซื้อสินค้าตามภาษาปัจจุบัน
+            const buyMerchBtn = document.getElementById('buyMerchBtn');
+            if (buyMerchBtn) {
+                buyMerchBtn.addEventListener('click', () => {
+                    const currentLang = document.documentElement.lang || 'th';
+                    const targetLink = currentLang === 'th' ? appConfig.buyLinkTH : appConfig.buyLinkEN;
+                    window.open(targetLink, '_blank'); // เปิดในแท็บใหม่
+                });
+            }
+        });
+    </script>
+</body>
+</html>
