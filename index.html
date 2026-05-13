@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="th">
+<!--html lang="th" -->
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -324,7 +325,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
             const langParam = params.get('lang');
-            setLanguage(langParam === 'en' || langParam === 'th' ? langParam : 'th');
+            // setLanguage(langParam === 'en' || langParam === 'th' ? langParam : 'th');  // --- เปลี่ยนภาษาเริ่มต้นเป็นภาษาอังกฤษ
+            setLanguage(langParam === 'en' || langParam === 'th' ? langParam : 'en');
 
             const merchSection = document.getElementById('merch');
             if (merchSection && !appConfig.showMerchSection) merchSection.style.display = 'none';
