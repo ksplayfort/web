@@ -82,7 +82,7 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             z-index: 1;
-            top: 150%; 
+            top: 150%; /* เลื่อนลงมานิดหน่อยให้ดูสมูท */
             left: 0;
             overflow: hidden;
             transition: all 0.3s ease;
@@ -274,11 +274,67 @@
         }
         footer { padding: 30px 0; text-align: center; color: var(--text-sec); font-size: 0.9rem; border-top: 1px solid var(--border); }
 
+        /* Mobile Menu Toggle */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.8rem;
+            cursor: pointer;
+            line-height: 1;
+            margin-left: 15px;
+        }
+
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2.5rem; }
-            .nav-links { display: none; }
-            .merch-container { flex-direction: column; text-align: center; }
+            .mobile-menu-btn { display: block; }
             .nav-right { gap: 10px; }
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: rgba(26, 26, 26, 0.98);
+                backdrop-filter: blur(10px);
+                padding: 10px 20px 20px;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+                border-bottom: 1px solid var(--border);
+                align-items: flex-start;
+                gap: 0;
+            }
+            .nav-links.show { display: flex; }
+            .nav-links > li { width: 100%; }
+            .nav-links > li > a { padding: 15px 0; border-bottom: 1px solid #333; width: 100%; justify-content: space-between; }
+            
+            /* Mobile Dropdown Fix */
+            .dropdown:hover .dropdown-content { display: none; }
+            .dropdown.active .dropdown-content { 
+                display: block; 
+                position: static;
+                visibility: visible;
+                opacity: 1;
+                box-shadow: none;
+                border: none;
+                background: transparent;
+                padding-left: 20px;
+                margin-top: 5px;
+                transform: none;
+            }
+            .dropdown-content a { padding: 10px 15px; border-bottom: 1px solid #222; }
+
+            .hero h1, .profile-header h1 { font-size: 2.2rem; }
+            .hero-banner { height: 250px; }
+            .merch-container { flex-direction: column; text-align: center; }
+            .merch-image { height: auto; max-height: 300px; width: 100%; }
+            .app-preview { margin: 20px 10px; }
+            .app-preview img { width: 100%; height: auto; }
+            .feature-grid, .setup-grid { grid-template-columns: 1fr; }
+            .bio-section, .setup-container, .setup-card { padding: 20px; }
+            .coming-soon h1 { font-size: 2.5rem; }
+            .hero-buttons { flex-direction: column; padding: 0 20px; }
+            .btn-download, .btn-github { width: 100%; text-align: center; }
         }
     </style>
 </head>
@@ -306,7 +362,7 @@
                     <li class="dropdown">
                         <a href="#gadget"><span data-i18n="nav_gadget">แก็ดเจ็ต</span> ▾</a>
                         <div class="dropdown-content">
-                            <a href="test.html">ksMindTell</a>
+                            <a href="ksmindtell.html">ksMindTell</a>
                         </div>
                     </li>
 
@@ -317,6 +373,7 @@
                     <button class="lang-btn active" onclick="setLanguage('th')">TH</button>
                     <button class="lang-btn" onclick="setLanguage('en')">EN</button>
                 </div>
+                <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
             </div>
         </div>
     </nav>
@@ -412,7 +469,7 @@
                 <p data-i18n="setup_step1_desc">เนื่องจากแอปไม่ได้แจกจ่ายผ่าน App Store ระบบ macOS อาจบล็อกและแจ้งเตือนเมื่อเปิดใช้งานครั้งแรก คุณสามารถแก้ไขได้ 3 วิธี:</p>
                 <ul>
                     <li data-i18n="setup_step1_m1"><strong>วิธีที่ 1:</strong> คลิกขวา (Right-click) ที่ไอคอนแอป KSMacExplorer แล้วเลือก <strong>Open (เปิด)</strong> จากนั้นกดยืนยัน</li>
-                    <li data-i18n="setup_step1_m3"><strong>วิธีที่ 2:</strong> ไปที่ <strong>System Settings</strong> > <strong>Privacy & Security</strong> เลื่อนลงมาที่หัวข้อ Security แล้วคลิกปุ่ม <strong>Open Anyway (อนุญาตต่อไป)</strong></li>
+                    <li data-i18n="setup_step1_m3"><strong>วิธีที่ 2:</strong> ไปที่ <strong>System Settings</strong> > <strong>Privacy & Security</strong> เลื่อนลงมาที่หัวข้อ Security แล้วคลิกปุ่ม <strong>Open Anyway (อนุญาตต่อไป)</strong> เพื่อให้แอปทำงานได้เสมอ</li>
                     <li data-i18n="setup_step1_m2"><strong>วิธีที่ 3:</strong> เปิดแอป Terminal ใน Mac แล้วคัดลอกคำสั่งด้านล่างนี้ไปรัน เพื่อปลดล็อคแอป:</li>
                 </ul>
                 <div class="code-block">xattr -cr /Applications/KSMacExplorer.app</div>
@@ -460,14 +517,15 @@
                 นักพัฒนาแอปพลิเคชันอิสระ ผู้ประยุกต์ใช้พลังของ AI ในการสร้างเครื่องมือที่มีประโยชน์และทรงพลังบน macOS
             </p>
             <div style="margin-top: 20px;">
-                <a href="#" style="margin: 0 10px; color: var(--accent);">GitHub</a>
+                <a href="https://github.com/ksplayfoft/ksmacexplorer" target="_blank" style="margin: 0 10px; color: var(--accent);">GitHub</a>
+                <a href="https://instagram.com/ksplayfort" target="_blank" style="margin: 0 10px; color: var(--accent);">Instagram</a>
             </div>
         </div>
     </section>
 
     <footer>
         <div class="container">
-            <p>&copy; 2024 KSMacExplorer. All rights reserved.</p>
+            <p>&copy; 2026 KS Play Foft. All rights reserved.</p>
         </div>
     </footer>
 
@@ -584,7 +642,7 @@
                 setup_step1_m3: "<strong>Method 2:</strong> Go to <strong>System Settings</strong> > <strong>Privacy & Security</strong>, scroll down to the Security section, and click <strong>Open Anyway</strong> to allow the app to run.",
                 setup_step1_m2: "<strong>Method 3:</strong> Open the Terminal app and run this command to remove the quarantine flag:",
                 setup_step2_title: "2. Granting Full Disk Access",
-                setup_step2_desc: "To allow the app to fully manage files across your entire system, you need to grant it Full Disk Access:",
+                setup_step2_desc: "To allow the app to fully manage files across your system, you need to grant it Full Disk Access:",
                 setup_step2_l1: "Go to <strong>System Settings</strong> > <strong>Privacy & Security</strong>.",
                 setup_step2_l2: "Scroll down and select <strong>Full Disk Access</strong>.",
                 setup_step2_l3: "Toggle the switch on for <strong>KSMacExplorer</strong>.",
@@ -628,6 +686,29 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Mobile Menu Toggle
+            const mobileBtn = document.getElementById('mobile-menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+            if (mobileBtn) {
+                mobileBtn.addEventListener('click', () => {
+                    navLinks.classList.toggle('show');
+                });
+            }
+
+            // Dropdown Toggle on Mobile
+            const dropdowns = document.querySelectorAll('.dropdown');
+            dropdowns.forEach(dropdown => {
+                // เลือกเฉพาะลิงก์ที่เป็นหัวข้อหลัก (Direct child <a>)
+                const toggleBtn = dropdown.querySelector(':scope > a'); 
+                if (toggleBtn) {
+                    toggleBtn.addEventListener('click', (e) => {
+                        if (window.innerWidth <= 768) {
+                            e.preventDefault(); // หยุดเฉพาะหัวข้อหลักไม่ให้เปลี่ยนหน้า
+                            dropdown.classList.toggle('active'); // สั่งให้กาง/หุบเมนูย่อย
+                        }
+                    });
+                }
+            });
             const params = new URLSearchParams(window.location.search);
             const langParam = params.get('lang');
             

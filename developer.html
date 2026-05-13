@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The KS Base - Developer</title>
+    <title>KS Play Foft - Developer</title>
     <style>
         :root {
             --bg-color: #0f0f0f;
@@ -72,7 +72,7 @@
         .profile-header h1 { font-size: 3rem; margin-bottom: 10px; }
         .profile-header h2 { font-size: 1.2rem; color: var(--accent); font-weight: normal; margin-bottom: 20px; }
         
-        /* Effect เรืองแสงสำหรับคำว่า The KS Base */
+        /* Effect เรืองแสงสำหรับคำว่า KS Play Foft */
         .glow-text {
             color: var(--accent);
             transition: text-shadow 0.3s ease;
@@ -92,9 +92,67 @@
 
         footer { padding: 30px 0; text-align: center; color: var(--text-sec); font-size: 0.9rem; border-top: 1px solid var(--border); margin-top: 50px; }
 
+        /* Mobile Menu Toggle */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.8rem;
+            cursor: pointer;
+            line-height: 1;
+            margin-left: 15px;
+        }
+
         @media (max-width: 768px) {
-            .nav-links { display: none; }
-            .profile-header h1 { font-size: 2.5rem; }
+            .mobile-menu-btn { display: block; }
+            .nav-right { gap: 10px; }
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: rgba(26, 26, 26, 0.98);
+                backdrop-filter: blur(10px);
+                padding: 10px 20px 20px;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+                border-bottom: 1px solid var(--border);
+                align-items: flex-start;
+                gap: 0;
+            }
+            .nav-links.show { display: flex; }
+            .nav-links > li { width: 100%; }
+            .nav-links > li > a { padding: 15px 0; border-bottom: 1px solid #333; width: 100%; justify-content: space-between; }
+            
+            /* Mobile Dropdown Fix */
+            .dropdown:hover .dropdown-content { display: none; }
+            .dropdown.active .dropdown-content { 
+                display: block; 
+                position: static;
+                visibility: visible;
+                opacity: 1;
+                box-shadow: none;
+                border: none;
+                background: transparent;
+                padding-left: 20px;
+                margin-top: 5px;
+                transform: none;
+            }
+            .dropdown-content a { padding: 10px 15px; border-bottom: 1px solid #222; }
+
+            .hero h1, .profile-header h1 { font-size: 2.2rem; }
+            .hero-banner { height: 250px; }
+            .merch-container { flex-direction: column; text-align: center; }
+            .merch-image { height: auto; max-height: 300px; width: 100%; }
+            .app-preview { margin: 20px 10px; }
+            .app-preview img { width: 100%; height: auto; }
+            .feature-grid, .setup-grid { grid-template-columns: 1fr; }
+            .bio-section, .setup-container, .setup-card { padding: 20px; }
+            .coming-soon h1 { font-size: 2.5rem; }
+            .hero-buttons { flex-direction: column; padding: 0 20px; }
+            .btn-download, .btn-github { width: 100%; text-align: center; }
         }
     </style>
 </head>
@@ -104,7 +162,7 @@
         <div class="container nav-content">
             <div class="logo">
                 <img src="KSname.png" alt="KS Logo" onerror="this.style.display='none'">
-                <span data-i18n="logo_text">The KS Base</span>
+                <span data-i18n="logo_text">KS Play Foft</span>
             </div>
             
             <div class="nav-right">
@@ -121,7 +179,7 @@
                     <li class="dropdown">
                         <a href="#gadget"><span data-i18n="nav_gadget">แก็ดเจ็ต</span> ▾</a>
                         <div class="dropdown-content">
-                            <a href="test.html">ksMindTell</a>
+                            Play Foft
                         </div>
                     </li>
                     <li><a href="developer.html" data-i18n="nav_dev">ผู้พัฒนา</a></li>
@@ -131,6 +189,7 @@
                     <button class="lang-btn active" onclick="setLanguage('th')">TH</button>
                     <button class="lang-btn" onclick="setLanguage('en')">EN</button>
                 </div>
+                <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
             </div>
         </div>
     </nav>
@@ -141,13 +200,13 @@
                 <div class="avatar-placeholder">
                     <img src="KSname2.png" alt="Developer Profile">
                 </div>
-                <h1 data-i18n="dev_greeting">ยินดีต้อนรับสู่ <span class="glow-text">The KS Base</span></h1>
+                <h1 data-i18n="dev_greeting">ยินดีต้อนรับสู่ <span class="glow-text">KS Play Foft</span></h1>
                 <h2 data-i18n="dev_title">บ้านของนักพัฒนาแอปพลิเคชันอิสระ</h2>
                 
                 <div class="social-links">
-                    <a href="https://github.com/theksbase" target="_blank">GitHub</a>
-                    <a href="https://twitter.com/theksbase" target="_blank">Twitter / X</a>
-                    <a href="https://www.instagram.com/theksbase" target="_blank">Instagram</a>
+                    <a href="https://github.com/ksplayfort" target="_blank">GitHub</a>
+                    <!-- a href="https://twitter.com/ksplayfort" target="_blank">Twitter / X</a -->
+                    <a href="https://www.instagram.com/ksplayfort" target="_blank">Instagram</a>
                 </div>
             </section>
 
@@ -158,7 +217,7 @@
                     ด้วยความก้าวหน้าของเทคโนโลยีในปัจจุบัน ผมได้นำพลังของ AI มาประยุกต์ใช้ในทุกขั้นตอนการพัฒนา ตั้งแต่การออกแบบโครงสร้าง (Architecture) ไปจนถึงการเขียนซอร์สโค้ด (Coding) 
                 </p>
                 <p data-i18n="bio_p2">
-                    ผลงานทั้งหมดใน The KS Base ถูกพัฒนาขึ้นโดยใช้ AI ช่วยเขียนโค้ด เช่นภาษา Swift, C เพื่อให้ซอฟต์แวร์สามารถทำงานได้ประสิทธิภาพสูงสุด ทั้งด้านความเร็วและการประหยัดทรัพยากร
+                    ผลงานทั้งหมดใน KS Play Foft ถูกพัฒนาขึ้นโดยใช้ AI ช่วยเขียนโค้ด เช่นภาษา Swift, C เพื่อให้ซอฟต์แวร์สามารถทำงานได้ประสิทธิภาพสูงสุด ทั้งด้านความเร็วและการประหยัดทรัพยากร
                 </p>
             </section>
 
@@ -173,37 +232,37 @@
 
     <footer>
         <div class="container">
-            <p>&copy; 2024 The KS Base. All rights reserved.</p>
+            <p>&copy; 2026 KS Play Foft. All rights reserved.</p>
         </div>
     </footer>
 
     <script>
         const translations = {
             th: {
-                logo_text: "The KS Base",
+                logo_text: "KS Play Foft",
                 nav_home: "หน้าหลัก",
                 nav_software: "ซอฟต์แวร์",
                 nav_gadget: "แก็ดเจ็ต",
                 nav_dev: "ผู้พัฒนา",
-                dev_greeting: "ยินดีต้อนรับสู่ <span class='glow-text'>The KS Base</span>",
+                dev_greeting: "ยินดีต้อนรับสู่ <span class='glow-text'>KS Play Foft</span>",
                 dev_title: "บ้านของนักพัฒนาแอปพลิเคชันอิสระ",
                 sec_philosophy: "ปรัชญาการทำงาน",
                 bio_p1: "ผมเป็นนักพัฒนาที่คาดหวังเครื่องมือที่ทำงานได้รวดเร็ว เบาเครื่อง และใช้งานง่าย ด้วยความก้าวหน้าของเทคโนโลยีในปัจจุบัน ผมได้นำพลังของ AI มาประยุกต์ใช้ในทุกขั้นตอนการพัฒนา ตั้งแต่การออกแบบโครงสร้าง (Architecture) ไปจนถึงการเขียนซอร์สโค้ด (Coding)",
-                bio_p2: "ผลงานทั้งหมดใน The KS Base ถูกพัฒนาขึ้นโดยใช้ AI ช่วยเขียนโค้ด เช่นภาษา Swift, C เพื่อให้ซอฟต์แวร์สามารถทำงานได้ประสิทธิภาพสูงสุด ทั้งด้านความเร็วและการประหยัดทรัพยากร",
+                bio_p2: "ผลงานทั้งหมดใน KS Play Foft ถูกพัฒนาขึ้นโดยใช้ AI ช่วยเขียนโค้ด เช่นภาษา Swift, C เพื่อให้ซอฟต์แวร์สามารถทำงานได้ประสิทธิภาพสูงสุด ทั้งด้านความเร็วและการประหยัดทรัพยากร",
                 sec_vision: "เป้าหมาย",
                 bio_p3: "มุ่งมั่นสร้างสรรค์ผลงานที่ช่วยแก้ปัญหา (Pain point) ในชีวิตประจำวันของผู้คน ไม่ว่าจะเป็นการจัดการไฟล์ที่คุ้นเคย การดูรูปภาพที่รวดเร็ว หรือการถนอมแบตเตอรี่ ทุกผลงานถูกสร้างมาเพื่อจุดประสงค์สูงสุดคือ 'คาดหวังให้คุณภาพชีวิตของเราดีขึ้น'"
             },
             en: {
-                logo_text: "The KS Base",
+                logo_text: "KS Play Foft",
                 nav_home: "Home",
                 nav_software: "Software",
                 nav_gadget: "Gadgets",
                 nav_dev: "Developer",
-                dev_greeting: "Welcome to <span class='glow-text'>The KS Base</span>",
+                dev_greeting: "Welcome to <span class='glow-text'>KS Play Foft</span>",
                 dev_title: "Home of an Independent App Developer",
                 sec_philosophy: "Development Philosophy",
                 bio_p1: "I am a developer who expects tools to be fast, lightweight, and easy to use. With current technological advancements, I have applied the power of AI to every step of development, from architecture design to source code generation.",
-                bio_p2: "All creations in The KS Base are developed with AI assisting in writing code, such as Swift and C, to ensure the software achieves maximum performance in both speed and resource efficiency.",
+                bio_p2: "All creations in KS Play Foft are developed with AI assisting in writing code, such as Swift and C, to ensure the software achieves maximum performance in both speed and resource efficiency.",
                 sec_vision: "Our Goal",
                 bio_p3: "Dedicated to creating solutions that address people's daily pain points, whether it's familiar file management, fast photo viewing, or battery preservation. Every project is built with the ultimate goal: 'expecting to improve our quality of life.'"
             }
@@ -239,6 +298,29 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Mobile Menu Toggle
+            const mobileBtn = document.getElementById('mobile-menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+            if (mobileBtn) {
+                mobileBtn.addEventListener('click', () => {
+                    navLinks.classList.toggle('show');
+                });
+            }
+
+            // Dropdown Toggle on Mobile
+            const dropdowns = document.querySelectorAll('.dropdown');
+            dropdowns.forEach(dropdown => {
+                // เลือกเฉพาะลิงก์ที่เป็นหัวข้อหลัก (Direct child <a>)
+                const toggleBtn = dropdown.querySelector(':scope > a'); 
+                if (toggleBtn) {
+                    toggleBtn.addEventListener('click', (e) => {
+                        if (window.innerWidth <= 768) {
+                            e.preventDefault(); // หยุดเฉพาะหัวข้อหลักไม่ให้เปลี่ยนหน้า
+                            dropdown.classList.toggle('active'); // สั่งให้กาง/หุบเมนูย่อย
+                        }
+                    });
+                }
+            });
             const params = new URLSearchParams(window.location.search);
             const langParam = params.get('lang');
             // setLanguage(langParam === 'en' || langParam === 'th' ? langParam : 'th');
