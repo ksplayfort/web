@@ -232,8 +232,17 @@
         .merch-info h2 { font-size: 2.5rem; margin: 10px 0; }
         .price { font-size: 1.5rem; color: var(--accent); font-weight: bold; margin-bottom: 20px; }
         .merch-desc { color: var(--text-sec); margin-bottom: 30px; }
-        .btn-buy { background: white; color: black; padding: 12px 30px; border-radius: 8px; font-weight: bold; border: 1px solid white; cursor: pointer; }
+        
+        .btn-buy { background: white; color: black; padding: 12px 30px; border-radius: 8px; font-weight: bold; border: 1px solid white; cursor: pointer; transition: 0.3s; }
         .btn-buy:hover { background: transparent; color: white; }
+        /* สไตล์สำหรับปุ่มเมื่อถูก Disable */
+        .btn-buy:disabled {
+            background: #333333;
+            color: #888888;
+            border-color: #333333;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
 
         /* --- 7. Developer & Footer --- */
         .developer { padding: 60px 0; background: var(--card-bg); text-align: center; border-top: 1px solid var(--border); }
@@ -489,8 +498,9 @@
 
     <script>
         const appConfig = {
-            showMerchTH: false,      // เปิดการแสดงผลสินค้าในภาษาไทย
-            showMerchEN: false,     // ปิดการแสดงผลสินค้าในภาษาอังกฤษ
+            showMerchTH: true,      // เปิดการแสดงผลสินค้าในภาษาไทย
+            showMerchEN: true,     // ปิดการแสดงผลสินค้าในภาษาอังกฤษ
+            isMerchAvailable: false, // ตั้งค่าเปิด/ปิด ปุ่มสั่งซื้อสินค้า (true = สั่งได้, false = เร็วๆนี้)
             buyLinkTH: "https://www.example.com/shop-th", 
             buyLinkEN: "https://www.example.com/shop-en"  
         };
@@ -537,6 +547,7 @@
                 prod_price: "฿300",
                 prod_desc: "กระเป๋าผ้าแคนวาส สกรีนลายไอคอนสไตล์มินิมอล ทนทาน จุของได้เยอะ เหมาะสำหรับใส่ MacBook และ Gadget ของคุณ",
                 btn_buy: "สั่งซื้อสินค้า",
+                btn_buy_soon: "เร็วๆ นี้",
                 dev_name: "พัฒนาโดย KS",
                 dev_bio: "นักพัฒนาแอปพลิเคชันอิสระ ผู้ประยุกต์ใช้พลังของ AI ในการสร้างเครื่องมือที่มีประโยชน์บน macOS"
             },
@@ -581,6 +592,7 @@
                 prod_price: "$10",
                 prod_desc: "Premium canvas tote bag featuring a minimalist icon design. Durable, spacious, and perfect for carrying your MacBook.",
                 btn_buy: "Buy Now",
+                btn_buy_soon: "Coming Soon",
                 dev_name: "Developed by KS",
                 dev_bio: "Independent developer utilizing the power of AI to create useful tools for macOS."
             }
@@ -649,6 +661,27 @@
                     });
                 }
             });
+
+            // --- ตั้งค่าปุ่มสั่งซื้อก่อนเซ็ตภาษา ---
+            const buyMerchBtn = document.getElementById('buyMerchBtn');
+            if (buyMerchBtn) {
+                if (!appConfig.isMerchAvailable) {
+                    // ปิดการใช้งานปุ่ม และเปลี่ยนให้ไปดึงคำแปล "เร็วๆ นี้"
+                    buyMerchBtn.disabled = true;
+                    buyMerchBtn.setAttribute('data-i18n', 'btn_buy_soon');
+                } else {
+                    // เปิดการใช้งานปุ่ม ดึงคำแปล "สั่งซื้อสินค้า" และผูก Event คลิก
+                    buyMerchBtn.disabled = false;
+                    buyMerchBtn.setAttribute('data-i18n', 'btn_buy');
+                    buyMerchBtn.addEventListener('click', () => {
+                        const currentLang = document.documentElement.lang || 'th';
+                        const targetLink = currentLang === 'th' ? appConfig.buyLinkTH : appConfig.buyLinkEN;
+                        window.open(targetLink, '_blank'); 
+                    });
+                }
+            }
+
+            // เริ่มกระบวนการตั้งค่าภาษา
             const params = new URLSearchParams(window.location.search);
             const langParam = params.get('lang');
             
@@ -656,15 +689,6 @@
                 setLanguage(langParam);
             } else {
                 setLanguage('en');
-            }
-
-            const buyMerchBtn = document.getElementById('buyMerchBtn');
-            if (buyMerchBtn) {
-                buyMerchBtn.addEventListener('click', () => {
-                    const currentLang = document.documentElement.lang || 'th';
-                    const targetLink = currentLang === 'th' ? appConfig.buyLinkTH : appConfig.buyLinkEN;
-                    window.open(targetLink, '_blank'); 
-                });
             }
         });
     </script>
