@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- html lang="th" -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -82,7 +81,7 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             z-index: 1;
-            top: 150%; /* เลื่อนลงมานิดหน่อยให้ดูสมูท */
+            top: 150%; 
             left: 0;
             overflow: hidden;
             transition: all 0.3s ease;
@@ -496,7 +495,7 @@
                 <div class="merch-info">
                     <span class="tag">Limited Edition</span>
                     <h2 data-i18n="prod_name">กระเป๋าผ้า KS Signature</h2>
-                    <p class="price">฿300 / $10</p>
+                    <p class="price" data-i18n="prod_price"></p>
                     <p class="merch-desc" data-i18n="prod_desc">
                         กระเป๋าผ้าแคนวาสอย่างดี สกรีนลายไอคอนสไตล์มินิมอล 
                         ทนทาน จุของได้เยอะ เหมาะสำหรับใส่ MacBook และ Gadget ของคุณ
@@ -517,7 +516,7 @@
                 นักพัฒนาแอปพลิเคชันอิสระ ผู้ประยุกต์ใช้พลังของ AI ในการสร้างเครื่องมือที่มีประโยชน์และทรงพลังบน macOS
             </p>
             <div style="margin-top: 20px;">
-                <a href="https://github.com/ksplayfoft/ksmacexplorer" target="_blank" style="margin: 0 10px; color: var(--accent);">GitHub</a>
+                <a href="https://github.com/ksplayfort/ksmacexplorer" target="_blank" style="margin: 0 10px; color: var(--accent);">GitHub</a>
                 <a href="https://instagram.com/ksplayfort" target="_blank" style="margin: 0 10px; color: var(--accent);">Instagram</a>
             </div>
         </div>
@@ -525,14 +524,14 @@
 
     <footer>
         <div class="container">
-            <p>&copy; 2026 KS Play Foft. All rights reserved.</p>
+            <p>&copy; 2026 KS Play Fort. All rights reserved.</p>
         </div>
     </footer>
 
     <script>
         const appConfig = {
-            showMerchSection: false,  // --- ซ่อน ส่วน KS Collection
-            // showMerchSection: true,     // --- แสดง ส่วน KS Collection
+            showMerchTH: false,      // เปิดการแสดงผลสินค้าในภาษาไทย
+            showMerchEN: false,     // ปิดการแสดงผลสินค้าในภาษาอังกฤษ
             buyLinkTH: "https://www.example.com/shop-th",
             buyLinkEN: "https://www.example.com/shop-en" 
         };
@@ -591,6 +590,7 @@
                 setup_step2_l4: "<em>(หากไม่พบแอปในรายการ ให้กดปุ่ม <strong>+</strong> ด้านล่าง แล้วเลือกแอป KSMacExplorer เข้าไป)</em>",
                 merch_title: "ของสะสม KS",
                 prod_name: "กระเป๋าผ้า KS Signature",
+                prod_price: "฿300",
                 prod_desc: "กระเป๋าผ้าแคนวาส สกรีนลายไอคอนสไตล์มินิมอล ทนทาน จุของได้เยอะ เหมาะสำหรับใส่ MacBook และ Gadget ของคุณ",
                 btn_buy: "สั่งซื้อสินค้า",
                 dev_name: "พัฒนาโดย KS",
@@ -649,6 +649,7 @@
                 setup_step2_l4: "<em>(If KSMacExplorer is not listed, click the <strong>+</strong> button at the bottom to add it manually)</em>.",
                 merch_title: "KS Collection",
                 prod_name: "KS Signature Tote Bag",
+                prod_price: "$10",
                 prod_desc: "Premium canvas tote bag featuring a minimalist icon design. Durable, spacious, and perfect for carrying your MacBook.",
                 btn_buy: "Buy Now",
                 dev_name: "Developed by KS",
@@ -683,6 +684,16 @@
                     }
                 }
             });
+
+            // ตรวจสอบและแสดงผล Section สินค้าตามการตั้งค่าของแต่ละภาษา
+            const merchSection = document.getElementById('merch');
+            if (merchSection) {
+                if (lang === 'th') {
+                    merchSection.style.display = appConfig.showMerchTH ? 'block' : 'none';
+                } else if (lang === 'en') {
+                    merchSection.style.display = appConfig.showMerchEN ? 'block' : 'none';
+                }
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -698,13 +709,12 @@
             // Dropdown Toggle on Mobile
             const dropdowns = document.querySelectorAll('.dropdown');
             dropdowns.forEach(dropdown => {
-                // เลือกเฉพาะลิงก์ที่เป็นหัวข้อหลัก (Direct child <a>)
                 const toggleBtn = dropdown.querySelector(':scope > a'); 
                 if (toggleBtn) {
                     toggleBtn.addEventListener('click', (e) => {
                         if (window.innerWidth <= 768) {
-                            e.preventDefault(); // หยุดเฉพาะหัวข้อหลักไม่ให้เปลี่ยนหน้า
-                            dropdown.classList.toggle('active'); // สั่งให้กาง/หุบเมนูย่อย
+                            e.preventDefault(); 
+                            dropdown.classList.toggle('active'); 
                         }
                     });
                 }
@@ -715,13 +725,7 @@
             if (langParam === 'en' || langParam === 'th') {
                 setLanguage(langParam);
             } else {
-                // setLanguage('th');  // --- เปลี่ยนภาษาเริ่มต้นเป็นภาษาอังกฤษ
                 setLanguage('en');
-            }
-
-            const merchSection = document.getElementById('merch');
-            if (merchSection && !appConfig.showMerchSection) {
-                merchSection.style.display = 'none';
             }
 
             const buyMerchBtn = document.getElementById('buyMerchBtn');
