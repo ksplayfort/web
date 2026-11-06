@@ -1,344 +1,459 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
+    <link rel="icon" type="image/png" href="favicon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MindTell</title>
+    <title>KS Play Fort - Home</title>
     <style>
         :root {
-            --bg-color: #f5f5f5;
-            --container-bg: #ffffff;
-            --text-color: #333333;
-            --input-bg: #ffffff;
-            --input-border: #cccccc;
-            --header-color: #3b5998;
-            --placeholder-color: #999;
-            --dropdown-bg: #ffffff;
-            --dropdown-hover: #f0f0f0;
+            --bg-color: #0f0f0f;
+            --card-bg: #1a1a1a;
+            --text-main: #ffffff;
+            --text-sec: #a0a0a0;
+            --accent: #8b5cf6; /* สีม่วงกลางๆ สำหรับหน้าหลัก */
+            --accent-hover: #7c3aed;
+            --border: #333333;
         }
 
-        .dark-mode {
-            --bg-color: #121212;
-            --container-bg: #1e1e1e;
-            --text-color: #e0e0e0;
-            --input-bg: #3a3a3a;          
-            --input-border: #555555;      
-            --header-color: #90caf9;
-            --placeholder-color: #a0a0a0; 
-            --dropdown-bg: #2d2d2d;
-            --dropdown-hover: #444444;
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            scroll-behavior: smooth;
         }
 
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background-color 0.3s, color 0.3s; }
-        body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-        
-        .container { width: 100%; max-width: 500px; padding: 20px; display: flex; flex-direction: column; height: 80vh; max-height: 80vh; position: relative; }
-        
-        /* หน้าจอตั้งค่า */
-        #settings-view { display: none; flex-direction: column; justify-content: center; height: 100%; }
-        .title { font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 20px; }
-        .input-box { width: 100%; padding: 15px; margin-bottom: 12px; border: 1px solid var(--input-border); border-radius: 8px; font-size: 16px; background-color: var(--input-bg); color: var(--text-color); }
-        .input-box::placeholder { color: var(--placeholder-color); }
-        
-        .button-row { display: flex; gap: 10px; margin-bottom: 20px; }
-        .btn-action { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; text-align: center; }
-        .btn-save { background-color: #4CAF50; }
-        .btn-clear { background-color: #9E9E9E; }
-        
-        /* หน้าจอแอปหลัก */
-        #app-view { display: flex; flex-direction: column; height: 100%; position: relative; }
-        
-        .header { display: flex; align-items: center; justify-content: space-between; margin: 10px 0 20px 0; position: relative; }
-        .hamburger { font-size: 28px; cursor: pointer; padding: 5px; color: var(--text-color); user-select: none; }
-        .app-name { font-size: 28px; font-weight: bold; color: var(--header-color); flex: 1; text-align: center; margin-right: 30px; }
-        #status-icon { font-size: 20px; margin-left: 5px; }
-        
-        .dropdown { display: none; position: absolute; top: 60px; left: 0; background-color: var(--dropdown-bg); border: 1px solid var(--input-border); border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 100; overflow: hidden; min-width: 200px; }
-        .dropdown-item { padding: 15px 20px; font-size: 16px; cursor: pointer; color: var(--text-color); border-bottom: 1px solid var(--input-border); }
-        .dropdown-item:last-child { border-bottom: none; }
-        .dropdown-item:hover { background-color: var(--dropdown-hover); }
+        a { text-decoration: none; color: inherit; transition: 0.3s; }
+        ul { list-style: none; }
 
-        .action-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 10px; }
-        
-        /* จัดกลุ่มปุ่ม ปิด, ไฟ, แบต ให้แชร์พื้นที่เท่าเดิม */
-        .left-buttons { display: flex; flex: 1; gap: 5px; }
-        .left-buttons .btn-action { padding: 12px 0; font-size: 14px; }
-        
-        .char-count { font-size: 14px; font-weight: bold; color: var(--placeholder-color); width: 60px; text-align: center; }
-        .btn-send { background-color: #2196F3; }
-        
-        /* สีปุ่มคำสั่ง */
-        .btn-close { background-color: #F44336; }
-        .btn-light { background-color: #FF9800; }
-        .btn-bat { background-color: #9C27B0; }
-        
-        /* ลดความสูงช่องพิมพ์ให้อยู่ที่ประมาณ 4 บรรทัด (120px) ป้องกันคีย์บอร์ดบังปุ่ม */
-        #input-text { 
-            width: 100%; 
-            height: 120px; 
-            padding: 15px; 
-            border: 1px solid var(--input-border); 
-            border-radius: 8px; 
-            font-size: 16px; 
-            line-height: 1.5;
-            resize: none; 
-            background-color: var(--input-bg); 
-            color: var(--text-color); 
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+        /* Navigation */
+        nav {
+            background: rgba(15, 15, 15, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 15px 0;
         }
 
-        /* Notification Popup (Toast) */
-        .toast {
-            visibility: hidden;
-            min-width: 250px;
-            background-color: #4CAF50;
-            color: #fff;
-            text-align: center;
-            border-radius: 8px;
-            padding: 16px;
-            position: absolute;
-            z-index: 1000;
-            left: 50%;
-            bottom: 30px;
-            transform: translateX(-50%);
-            font-size: 16px;
-            font-weight: bold;
-            opacity: 0;
-            transition: opacity 0.5s, bottom 0.5s;
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+
+        .logo { font-size: 1.2rem; font-weight: bold; display: flex; align-items: center; gap: 12px; }
+        .logo img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
+        .logo span { color: var(--accent); }
+
+        .nav-right { display: flex; align-items: center; gap: 20px; }
+        .nav-links { display: flex; gap: 25px; align-items: center; }
+        .nav-links > li > a { font-size: 0.95rem; color: var(--text-sec); cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .nav-links > li > a:hover { color: var(--accent); }
+
+        /* Dropdown Styles */
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-content {
+            visibility: hidden; opacity: 0; position: absolute;
+            background-color: var(--card-bg); min-width: 180px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+            border: 1px solid var(--border); border-radius: 8px;
+            z-index: 1; top: 150%; left: 0; overflow: hidden;
+            transition: all 0.3s ease; transform: translateY(10px);
+        }
+        .dropdown:hover .dropdown-content { visibility: visible; opacity: 1; transform: translateY(0); top: 100%; }
+        .dropdown-content a { color: var(--text-main); padding: 12px 16px; display: block; font-size: 0.9rem; transition: background 0.2s; }
+        .dropdown-content a:hover { background-color: rgba(255, 255, 255, 0.05); color: var(--accent); }
+
+        /* Language Switcher */
+        .lang-switch { display: flex; gap: 5px; border: 1px solid var(--border); padding: 4px; border-radius: 6px; margin-left: 10px; }
+        .lang-btn { background: none; border: none; color: var(--text-sec); cursor: pointer; padding: 2px 8px; font-size: 0.8rem; border-radius: 4px; transition: 0.3s; }
+        .lang-btn.active { background: var(--border); color: white; font-weight: bold; }
+
+        /* Hero Section */
+        .hero { padding: 100px 0; text-align: center; }
+        .hero h1 {
+            font-size: 4rem; margin-bottom: 20px;
+            background: linear-gradient(to right, #fff, #a78bfa);
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+        }
+        .hero p { font-size: 1.2rem; color: var(--text-sec); max-width: 700px; margin: 0 auto 40px auto; }
+        .hero-banner {
+            margin-top: 40px; border-radius: 16px; overflow: hidden;
+            box-shadow: 0 20px 50px rgba(139, 92, 246, 0.2);
+            border: 1px solid var(--border); height: 400px;
+            background: #222; display: flex; align-items: center; justify-content: center;
+            color: #666; font-size: 1.5rem;
+        }
+        .hero-banner img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Product Grid */
+        .products { padding: 80px 0; background: var(--card-bg); }
+        .section-title { text-align: center; font-size: 2.5rem; margin-bottom: 50px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .card { background: var(--bg-color); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; transition: 0.3s; display: flex; flex-direction: column; }
+        .card:hover { border-color: var(--accent); transform: translateY(-5px); }
+        
+        .card-img { height: 200px; background: #2a2a2a; display: flex; align-items: center; justify-content: center; color: #555; overflow: hidden; padding: 15px; }
+        .card-img img { width: 100%; height: 100%; object-fit: contain; }
+        
+        .card-content { padding: 30px; flex: 1; display: flex; flex-direction: column; }
+        .card-content h3 { font-size: 1.5rem; margin-bottom: 10px; }
+        .card-content p { color: var(--text-sec); font-size: 0.95rem; margin-bottom: 20px; flex: 1; }
+        .btn-outline { display: inline-block; padding: 10px 20px; border: 1px solid var(--border); border-radius: 8px; text-align: center; font-weight: bold; transition: 0.3s; }
+        .card:hover .btn-outline { border-color: var(--accent); color: var(--accent); }
+
+        /* Merch */
+        .merch { padding: 80px 0; }
+        .merch-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; align-items: center; }
+        .merch-image { flex: 1; min-width: 300px; max-width: 400px; background: var(--card-bg); border-radius: 20px; padding: 20px; border: 1px solid var(--border); height: 350px; display: flex; align-items: center; justify-content: center; color: #555;}
+        .merch-info { flex: 1; min-width: 300px; }
+        .tag { background: var(--accent); color: white; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; }
+        .merch-info h2 { font-size: 2.5rem; margin: 10px 0; }
+        .price { font-size: 1.5rem; color: var(--accent); font-weight: bold; margin-bottom: 20px; }
+        .merch-desc { color: var(--text-sec); margin-bottom: 30px; }
+        
+        /* สไตล์ปุ่มซื้อสินค้าและตอนถูก Disable */
+        .btn-buy { background: white; color: black; padding: 12px 30px; border-radius: 8px; font-weight: bold; border: 1px solid white; cursor: pointer; transition: 0.3s; }
+        .btn-buy:hover { background: transparent; color: white; }
+        .btn-buy:disabled {
+            background: #333333;
+            color: #888888;
+            border-color: #333333;
+            cursor: not-allowed;
+            pointer-events: none;
         }
 
-        .toast.show {
-            visibility: visible;
-            opacity: 1;
-            bottom: 50px;
+        footer { padding: 30px 0; text-align: center; color: var(--text-sec); font-size: 0.9rem; border-top: 1px solid var(--border); margin-top: 50px; }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.8rem;
+            cursor: pointer;
+            line-height: 1;
+            margin-left: 15px;
         }
 
+        @media (max-width: 768px) {
+            .mobile-menu-btn { display: block; }
+            .nav-right { gap: 10px; }
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: rgba(26, 26, 26, 0.98);
+                backdrop-filter: blur(10px);
+                padding: 10px 20px 20px;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+                border-bottom: 1px solid var(--border);
+                align-items: flex-start;
+                gap: 0;
+            }
+            .nav-links.show { display: flex; }
+            .nav-links > li { width: 100%; }
+            .nav-links > li > a { padding: 15px 0; border-bottom: 1px solid #333; width: 100%; justify-content: space-between; }
+            
+            /* Mobile Dropdown Fix */
+            .dropdown:hover .dropdown-content { display: none; }
+            .dropdown.active .dropdown-content { 
+                display: block; 
+                position: static;
+                visibility: visible;
+                opacity: 1;
+                box-shadow: none;
+                border: none;
+                background: transparent;
+                padding-left: 20px;
+                margin-top: 5px;
+                transform: none;
+            }
+            .dropdown-content a { padding: 10px 15px; border-bottom: 1px solid #222; }
+
+            .hero h1, .profile-header h1 { font-size: 2.2rem; }
+            .hero-banner { height: 250px; }
+            .merch-container { flex-direction: column; text-align: center; }
+            .merch-image { height: auto; max-height: 300px; width: 100%; }
+            .app-preview { margin: 20px 10px; }
+            .app-preview img { width: 100%; height: auto; }
+            .feature-grid, .setup-grid { grid-template-columns: 1fr; }
+            .bio-section, .setup-container, .setup-card { padding: 20px; }
+            .coming-soon h1 { font-size: 2.5rem; }
+            .hero-buttons { flex-direction: column; padding: 0 20px; }
+            .btn-download, .btn-github { width: 100%; text-align: center; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="settings-view" class="container">
-        <div class="title">ตั้งค่าเชื่อมต่อ Firebase</div>
-        <input type="text" id="apiKey" class="input-box" placeholder="API Key">
-        <input type="text" id="dbUrl" class="input-box" placeholder="Database URL">
-        <input type="text" id="projectId" class="input-box" placeholder="Project ID">
-        
-        <div class="button-row">
-            <button id="clear-btn" class="btn-action btn-clear">ลบค่า</button>
-            <button id="save-btn" class="btn-action btn-save">บันทึก</button>
-        </div>
-    </div>
-
-    <div id="app-view" class="container">
-        <div class="header">
-            <div class="hamburger" id="menu-btn">☰</div>
-            <div class="app-name">MindTell <span id="status-icon">⛓️‍💥</span></div>
-        </div>
-
-        <div class="dropdown" id="dropdown-menu">
-            <div class="dropdown-item" id="nav-settings-btn">ตั้งค่าการส่งข้อความ</div>
-            <div class="dropdown-item" id="theme-toggle-btn">เปลี่ยนเป็นโหมดมืด</div>
-        </div>
-
-        <div class="action-bar">
-            <!-- กลุ่ม 3 ปุ่มที่ใช้ความกว้างรวมเท่ากับปุ่มเลิกส่งเดิม -->
-            <div class="left-buttons">
-                <button id="close-btn" class="btn-action btn-close">ปิด</button>
-                <button id="light-btn" class="btn-action btn-light">ไฟ</button>
-                <button id="bat-btn" class="btn-action btn-bat">แบต</button>
+    <nav>
+        <div class="container nav-content">
+            <div class="logo">
+                <img src="KSname.png" alt="KS Logo" onerror="this.style.display='none'">
+                <span data-i18n="logo_text">KS Play Fort</span>
             </div>
             
-            <div id="char-count" class="char-count">0/100</div>
-            <button id="send-btn" class="btn-action btn-send">ส่ง</button>
+            <div class="nav-right">
+                <ul class="nav-links">
+                    <li><a href="index.html" data-i18n="nav_home">หน้าหลัก</a></li>
+                    <li class="dropdown">
+                        <a href="#software"><span data-i18n="nav_software">ซอฟต์แวร์</span> ▾</a>
+                        <div class="dropdown-content">
+                            <a href="ks3080.html">ks3080</a>
+                            <a href="ksmacexplorer.html">ksMacExplorer</a>
+                            <a href="ksphotoviewer.html">ksPhotoViewer</a>
+                        </div>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#gadget"><span data-i18n="nav_gadget">แก็ดเจ็ต</span> ▾</a>
+                        <div class="dropdown-content">
+                            <a href="ksmindtell.html">ksMindTell</a>
+                        </div>
+                    </li>
+                    <li><a href="developer.html" data-i18n="nav_dev">ผู้พัฒนา</a></li>
+                </ul>
+
+                <div class="lang-switch">
+                    <button class="lang-btn active" onclick="setLanguage('th')">TH</button>
+                    <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+                </div>
+                <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+            </div>
         </div>
-        
-        <textarea id="input-text" placeholder="พิมพ์ข้อความที่นี่..."></textarea>
+    </nav>
 
-        <div id="toast" class="toast">ส่งข้อความสำเร็จ!</div>
-    </div>
-
-    <script type="module">
-        import { initializeApp, getApps, deleteApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-
-        // ==========================================
-        // ⚙️ การตั้งค่าโค้ด (กำหนดค่าคงที่ตรงนี้)
-        // ==========================================
-        const BASE_PATH = 'mindtell'; 
-        const GROUP_NAME = 'groupA';
-        const MAX_CHARS = 100; 
-        
-        let db = null;
-        let activePath = `${BASE_PATH}/${GROUP_NAME}`; 
-
-        const settingsView = document.getElementById('settings-view');
-        const appView = document.getElementById('app-view');
-        const statusIcon = document.getElementById('status-icon');
-        const dropdownMenu = document.getElementById('dropdown-menu');
-        const themeToggleBtn = document.getElementById('theme-toggle-btn');
-        const inputText = document.getElementById('input-text');
-        const charCount = document.getElementById('char-count');
-        const toast = document.getElementById('toast');
-
-        // --- ระบบนับตัวอักษร ---
-        inputText.maxLength = MAX_CHARS;
-        charCount.innerText = `0/${MAX_CHARS}`;
-        inputText.addEventListener('input', (e) => {
-            charCount.innerText = `${e.target.value.length}/${MAX_CHARS}`;
-        });
-
-        // --- ระบบแสดง Notification (Toast) ---
-        function showToast(message) {
-            toast.innerText = message;
-            toast.className = "toast show";
-            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
-        }
-
-        // --- ระบบ Theme ---
-        function initTheme() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            applyTheme(savedTheme);
-        }
-
-        function applyTheme(theme) {
-            if (theme === 'dark') {
-                document.body.classList.add('dark-mode');
-                themeToggleBtn.innerText = 'เปลี่ยนเป็นโหมดสว่าง';
-            } else {
-                document.body.classList.remove('dark-mode');
-                themeToggleBtn.innerText = 'เปลี่ยนเป็นโหมดมืด';
-            }
-            localStorage.setItem('theme', theme);
-        }
-
-        themeToggleBtn.addEventListener('click', () => {
-            applyTheme(document.body.classList.contains('dark-mode') ? 'light' : 'dark');
-            dropdownMenu.style.display = 'none';
-        });
-
-        // --- ระบบโหลด Config ---
-        function loadConfig() {
-            const savedConfig = localStorage.getItem('firebaseConfig');
-            if (savedConfig) {
-                const config = JSON.parse(savedConfig);
-                document.getElementById('apiKey').value = config.apiKey || '';
-                document.getElementById('dbUrl').value = config.databaseURL || '';
-                document.getElementById('projectId').value = config.projectId || '';
-                connectToFirebase(config);
-            } else {
-                settingsView.style.display = 'flex';
-                appView.style.display = 'none';
-            }
-        }
-
-        // --- ระบบเชื่อมต่อ Firebase ---
-        async function connectToFirebase(config) {
-            db = null;
-            if (!config.apiKey || !config.databaseURL || !config.projectId) {
-                statusIcon.innerText = '⛓️‍💥'; 
-                appView.style.display = 'flex';
-                settingsView.style.display = 'none';
-                return;
-            }
-
-            try {
-                if (getApps().length > 0) { await deleteApp(getApps()[0]); }
-                const app = initializeApp(config);
-                const auth = getAuth(app);
-                await signInAnonymously(auth);
-
-                db = getDatabase(app);
-                statusIcon.innerText = '🔗';
-                appView.style.display = 'flex';
-                settingsView.style.display = 'none';
-                
-                // ฟังการเปลี่ยนแปลงจาก Firebase เพื่อแสดง Toast
-                let isInitialLoad = true;
-                const messageRef = ref(db, activePath);
-                onValue(messageRef, (snapshot) => {
-                    const data = snapshot.val();
-                    if (data && data.text) {
-                        const text = data.text.trim();
-                        // ข้ามการแจ้งเตือนตอนโหลดหน้าเว็บครั้งแรก
-                        if (!isInitialLoad) {
-                            if (text === "==RGB==") {
-                                showToast("เปิดไฟ");
-                            } else if (text === "==END==") { // เพิ่มการแสดงผลเมื่อได้รับคำสั่ง ==END==
-                                showToast("ปิดหน้าจอ");
-                            } else if (/^\d+\s*%$/.test(text)) {
-                                // ตรวจจับรูปแบบตัวเลขตามด้วย % เช่น "50 %" หรือ "100%"
-                                showToast(`แบตเหลือ ${text}`);
-                            }
-                        }
-                    }
-                    isInitialLoad = false;
-                });
-                
-            } catch (error) {
-                statusIcon.innerText = '⛓️‍💥';
-                appView.style.display = 'flex';
-                settingsView.style.display = 'none';
-            }
-        }
-
-        // --- ปุ่มต่างๆ ในหน้าตั้งค่า ---
-        document.getElementById('save-btn').addEventListener('click', () => {
-            const config = {
-                apiKey: document.getElementById('apiKey').value.trim(),
-                databaseURL: document.getElementById('dbUrl').value.trim(),
-                projectId: document.getElementById('projectId').value.trim()
-            };
-            localStorage.setItem('firebaseConfig', JSON.stringify(config));
-            connectToFirebase(config);
-        });
-
-        document.getElementById('clear-btn').addEventListener('click', () => {
-            ['apiKey', 'dbUrl', 'projectId'].forEach(id => document.getElementById(id).value = '');
-        });
-
-        // --- เมนูแฮมเบอร์เกอร์ ---
-        document.getElementById('menu-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
-        });
-
-        document.addEventListener('click', () => { dropdownMenu.style.display = 'none'; });
-
-        document.getElementById('nav-settings-btn').addEventListener('click', () => {
-            appView.style.display = 'none';
-            settingsView.style.display = 'flex';
-        });
-
-        // --- ระบบส่งข้อความ ---
-        function sendMessage(textToSend) {
-            if (!db) { alert('เชื่อมต่อไม่สมบูรณ์ กรุณาตั้งค่าใหม่'); return; }
-            if (!textToSend.trim()) return;
+    <section class="hero">
+        <div class="container">
+            <h1 data-i18n="hero_title">สร้างสรรค์ด้วยพลังแห่ง AI</h1>
+            <p data-i18n="hero_desc">รวมแอปพลิเคชันและเครื่องมือสำหรับ macOS ที่ออกแบบมาเพื่อผู้ใช้งานยุคใหม่ เรียบง่าย รวดเร็ว และพัฒนาโค้ดด้วย AI แท้ 100%</p>
             
-            set(ref(db, activePath), { 
-                text: textToSend, 
-                timestamp: Date.now() 
-            })
-            .then(() => { 
-                // ซ่อน Toast แจ้งเตือนปกติถ้าเป็นคำสั่งพิเศษ เพราะ onValue จะทำงานแทน
-                if (textToSend !== "==END==" && textToSend !== "==RGB==" && textToSend !== "==BAT==") {
-                    inputText.value = ''; 
-                    charCount.innerText = `0/${MAX_CHARS}`;
-                    showToast("ส่งข้อความสำเร็จ!"); 
+            <div class="hero-banner">
+                <img src="hero-banner.png" alt="KS Play Fort Hero Banner">
+            </div>
+        </div>
+    </section>
+
+    <section id="software" class="products">
+        <div class="container">
+            <h2 class="section-title" data-i18n="sec_software">ซอฟต์แวร์ของเรา</h2>
+            <div class="grid">
+
+                <div class="card">
+                    <div class="card-img">
+                        <img src="KS3080screen.png" alt="ks3080 App" onerror="this.style.display='none'">
+                    </div>
+                    <div class="card-content">
+                        <h3>ks3080</h3>
+                        <p data-i18n="desc_ks3080">แอปพลิเคชันบน Menu Bar ที่คอยแจ้งเตือนการชาร์จแบตเตอรี่ในเวลาที่เหมาะสม เพื่อถนอมสุขภาพแบตเตอรี่ Mac ของคุณ</p>
+                        <a href="ks3080.html" class="btn-outline" data-i18n="btn_learn_more">รายละเอียดเพิ่มเติม</a>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-img">
+                        <img src="KSMEscreen.png" alt="ksMacExplorer App" onerror="this.style.display='none'">
+                    </div>
+                    <div class="card-content">
+                        <h3>ksMacExplorer</h3>
+                        <p data-i18n="desc_ksmac">แอปพลิเคชัน File Manager บน Mac ที่ผู้ใช้ Windows อาจคุ้นเคย มาพร้อม Dual View และระบบจัดการไฟล์ที่ครบถ้วน</p>
+                        <a href="ksmacexplorer.html" class="btn-outline" data-i18n="btn_learn_more">รายละเอียดเพิ่มเติม</a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-img">
+                        <img src="KSPVscreen.png" alt="ksPhotoViewer App" onerror="this.style.display='none'">
+                    </div>
+                    <div class="card-content">
+                        <h3>ksPhotoViewer</h3>
+                        <p data-i18n="desc_ksphoto">โปรแกรมดูรูปที่ใช่สำหรับ macOS เร็ว แรง เบาเครื่อง พร้อมฟีเจอร์ตัดต่อพื้นฐาน และรองรับการเล่นไฟล์วิดีโอ</p>
+                        <a href="ksphotoviewer.html" class="btn-outline" data-i18n="btn_learn_more">รายละเอียดเพิ่มเติม</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="merch" class="merch">
+        <div class="container">
+            <h2 class="section-title" data-i18n="merch_title">KS Collection</h2>
+            <div class="merch-container">
+                <div class="merch-image">
+                    <span data-i18n="img_placeholder_merch">[ รูปสินค้ากระเป๋า ]</span>
+                    </div>
+                <div class="merch-info">
+                    <span class="tag">Limited Edition</span>
+                    <h2 data-i18n="prod_name">กระเป๋าผ้า KS Signature</h2>
+                    <p class="price" data-i18n="prod_price"></p>
+                    <p class="merch-desc" data-i18n="prod_desc">
+                        กระเป๋าผ้าแคนวาสอย่างดี สกรีนลายไอคอนสไตล์มินิมอล 
+                        ทนทาน จุของได้เยอะ เหมาะสำหรับใส่ MacBook และ Gadget ของคุณ
+                    </p>
+                    <button class="btn-buy" id="buyMerchBtn" data-i18n="btn_buy">
+                        สั่งซื้อสินค้า
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 KS Play Fort. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const appConfig = {
+            showMerchTH: false,       // เปิดการแสดงผลสินค้าในภาษาไทย
+            showMerchEN: false,      // ปิดการแสดงผลสินค้าในภาษาอังกฤษ
+            isMerchAvailable: false, // ตั้งค่าเปิด/ปิด ปุ่มสั่งซื้อสินค้า (true = สั่งได้, false = เร็วๆนี้)
+            buyLinkTH: "https://www.example.com/shop-th",
+            buyLinkEN: "https://www.example.com/shop-en"
+        };
+
+        const translations = {
+            th: {
+                logo_text: "KS Play Fort",
+                nav_home: "หน้าหลัก",
+                nav_software: "ซอฟต์แวร์",
+                nav_gadget: "แก็ดเจ็ต",
+                nav_dev: "ผู้พัฒนา",
+                hero_title: "สร้างสรรค์ด้วยพลังแห่ง AI",
+                hero_desc: "รวมแอปพลิเคชันและเครื่องมือสำหรับ macOS ที่ออกแบบมาเพื่อผู้ใช้งานยุคใหม่ เรียบง่าย รวดเร็ว และพัฒนาโค้ดด้วย AI แท้ 100%",
+                sec_software: "ซอฟต์แวร์ของเรา",
+                desc_ksmac: "แอปพลิเคชัน File Manager บน Mac ที่ผู้ใช้ Windows อาจคุ้นเคย มาพร้อม Dual View และระบบจัดการไฟล์ที่ครบถ้วน",
+                desc_ksphoto: "โปรแกรมดูรูปที่ใช่สำหรับ macOS เร็ว แรง เบาเครื่อง พร้อมฟีเจอร์ตัดต่อพื้นฐาน และรองรับการเล่นไฟล์วิดีโอ",
+                desc_ks3080: "แอปพลิเคชันบน Menu Bar ที่คอยแจ้งเตือนการชาร์จแบตเตอรี่ในเวลาที่เหมาะสม เพื่อถนอมสุขภาพแบตเตอรี่ Mac ของคุณ",
+                btn_learn_more: "รายละเอียดเพิ่มเติม",
+                merch_title: "ของสะสม KS",
+                img_placeholder_merch: "[ รูปสินค้ากระเป๋า ]",
+                prod_name: "กระเป๋าผ้า KS Signature",
+                prod_price: "฿300",
+                prod_desc: "กระเป๋าผ้าแคนวาส สกรีนลายไอคอนสไตล์มินิมอล ทนทาน จุของได้เยอะ เหมาะสำหรับใส่ MacBook และ Gadget ของคุณ",
+                btn_buy: "สั่งซื้อสินค้า",
+                btn_buy_soon: "เร็วๆ นี้"
+            },
+            en: {
+                logo_text: "KS Play Fort",
+                nav_home: "Home",
+                nav_software: "Software",
+                nav_gadget: "Gadgets",
+                nav_dev: "Developer",
+                hero_title: "Crafted with the Power of AI",
+                hero_desc: "A collection of macOS applications and tools designed for modern users. Simple, fast, and 100% AI-generated codebase.",
+                sec_software: "Our Software",
+                desc_ksmac: "A Mac File Manager familiar to Windows users, featuring Dual View and comprehensive file operations.",
+                desc_ksphoto: "The fast, lightweight photo viewer for macOS. Edit, crop, check metadata, and play video files seamlessly.",
+                desc_ks3080: "A smart Menu Bar app that notifies you when to plug or unplug your charger, extending your Mac's battery health.",
+                btn_learn_more: "Learn More",
+                merch_title: "KS Collection",
+                img_placeholder_merch: "[ Merch Image Placeholder ]",
+                prod_name: "KS Signature Tote Bag",
+                prod_price: "$10",
+                prod_desc: "Premium canvas tote bag featuring a minimalist icon design. Durable, spacious, and perfect for carrying your MacBook.",
+                btn_buy: "Buy Now",
+                btn_buy_soon: "Coming Soon"
+            }
+        };
+
+        function setLanguage(lang) {
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.innerHTML = translations[lang][key];
                 }
-            })
-            .catch((err) => {
-                alert('ส่งไม่สำเร็จ: ' + err.message);
             });
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = Array.from(document.querySelectorAll('.lang-btn')).find(btn => btn.innerText.toLowerCase() === lang);
+            if(activeBtn) activeBtn.classList.add('active');
+            document.documentElement.lang = lang;
+            
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.set('lang', lang);
+            window.history.pushState({}, '', newUrl);
+
+            // ปรับตัวเลือกดึงลิงก์ ให้ครอบคลุมลิงก์เมนูหลักทั้งหมด (รวม หน้าหลัก และ ผู้พัฒนา)
+            document.querySelectorAll('.nav-links a, .btn-outline').forEach(link => {
+                let href = link.getAttribute('href');
+                if (href) {
+                    let baseHref = href.split('?')[0];
+                    if (!baseHref.startsWith('#') && !baseHref.startsWith('javascript:')) {
+                        link.setAttribute('href', baseHref + '?lang=' + lang);
+                    }
+                }
+            });
+
+            // ตรวจสอบและแสดงผล Section สินค้าตามการตั้งค่าของแต่ละภาษา
+            const merchSection = document.getElementById('merch');
+            if (merchSection) {
+                if (lang === 'th') {
+                    merchSection.style.display = appConfig.showMerchTH ? 'block' : 'none';
+                } else if (lang === 'en') {
+                    merchSection.style.display = appConfig.showMerchEN ? 'block' : 'none';
+                }
+            }
         }
 
-        // --- ผูก Event ปุ่มต่างๆ ---
-        document.getElementById('send-btn').addEventListener('click', () => sendMessage(inputText.value));
-        document.getElementById('close-btn').addEventListener('click', () => sendMessage('==END=='));
-        document.getElementById('light-btn').addEventListener('click', () => sendMessage('==RGB=='));
-        document.getElementById('bat-btn').addEventListener('click', () => sendMessage('==BAT=='));
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mobile Menu Toggle
+            const mobileBtn = document.getElementById('mobile-menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+            if (mobileBtn) {
+                mobileBtn.addEventListener('click', () => {
+                    navLinks.classList.toggle('show');
+                });
+            }
 
-        initTheme();
-        loadConfig();
+            // Dropdown Toggle on Mobile
+            const dropdowns = document.querySelectorAll('.dropdown');
+            dropdowns.forEach(dropdown => {
+                // เลือกเฉพาะลิงก์ที่เป็นหัวข้อหลัก (Direct child <a>)
+                const toggleBtn = dropdown.querySelector(':scope > a'); 
+                if (toggleBtn) {
+                    toggleBtn.addEventListener('click', (e) => {
+                        if (window.innerWidth <= 768) {
+                            e.preventDefault(); // หยุดเฉพาะหัวข้อหลักไม่ให้เปลี่ยนหน้า
+                            dropdown.classList.toggle('active'); // สั่งให้กาง/หุบเมนูย่อย
+                        }
+                    });
+                }
+            });
+
+            // --- ตั้งค่าปุ่มสั่งซื้อก่อนเซ็ตภาษา ---
+            const buyMerchBtn = document.getElementById('buyMerchBtn');
+            if (buyMerchBtn) {
+                if (!appConfig.isMerchAvailable) {
+                    // ปิดการใช้งานปุ่ม และเปลี่ยนให้ไปดึงคำแปล "เร็วๆ นี้"
+                    buyMerchBtn.disabled = true;
+                    buyMerchBtn.setAttribute('data-i18n', 'btn_buy_soon');
+                } else {
+                    // เปิดการใช้งานปุ่ม ดึงคำแปล "สั่งซื้อสินค้า" และผูก Event คลิก
+                    buyMerchBtn.disabled = false;
+                    buyMerchBtn.setAttribute('data-i18n', 'btn_buy');
+                    buyMerchBtn.addEventListener('click', () => {
+                        const currentLang = document.documentElement.lang || 'th';
+                        const targetLink = currentLang === 'th' ? appConfig.buyLinkTH : appConfig.buyLinkEN;
+                        window.open(targetLink, '_blank'); 
+                    });
+                }
+            }
+
+            // เริ่มกระบวนการตั้งค่าภาษา
+            const params = new URLSearchParams(window.location.search);
+            const langParam = params.get('lang');
+            // setLanguage(langParam === 'en' || langParam === 'th' ? langParam : 'th');  // --- เปลี่ยนภาษาเริ่มต้นเป็นภาษาอังกฤษ
+            setLanguage(langParam === 'en' || langParam === 'th' ? langParam : 'en');
+        });
     </script>
 </body>
 </html>
