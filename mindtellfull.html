@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindTell</title>
+    <style>
+        :root {
+            --bg-color: #f5f5f5;
+            --container-bg: #ffffff;
+            --text-color: #333333;
+            --input-bg: #ffffff;
+            --input-border: #cccccc;
+            --received-bg: #e9ecef;
+            --header-color: #3b5998;
+            --placeholder-color: #999;
+            --dropdown-bg: #ffffff;
+            --dropdown-hover: #f0f0f0;
+        }
+
+        /* --- ปรับปรุงสีโหมดมืดให้สว่างขึ้นและอ่านง่ายขึ้น --- */
+        .dark-mode {
+            --bg-color: #121212;
+            --container-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --input-bg: #3a3a3a;
+            --input-border: #555555;
+            --received-bg: #3a3a3a;
+            --header-color: #90caf9;
+            --placeholder-color: #a0a0a0;
+            --dropdown-bg: #2d2d2d;
+            --dropdown-hover: #444444;
+        }
+
+        /* รีเซ็ตและป้องกันการเลื่อน (Scroll) ทั้งหน้าจอ */
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background-color 0.3s, color 0.3s; }
+        body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        
+        /* บังคับความสูง 80% ของหน้าจอ */
+        .container { width: 100%; max-width: 500px; padding: 20px; display: flex; flex-direction: column; height: 80vh; max-height: 80vh; }
+        
+        #settings-view { display: none; flex-direction: column; justify-content: center; height: 100%; }
+        .title { font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 20px; }
+        .input-box { width: 100%; padding: 15px; margin-bottom: 12px; border: 1px solid var(--input-border); border-radius: 8px; font-size: 16px; background-color: var(--input-bg); color: var(--text-color); }
+        .input-box::placeholder { color: var(--placeholder-color); }
+        .label-hint { font-size: 12px; color: var(--placeholder-color); margin-bottom: 15px; margin-top: -8px; padding-left: 5px; }
+
+        .button-row { display: flex; gap: 10px; margin-bottom: 20px; }
+        .btn-action { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; text-align: center; }
+        .btn-save { background-color: #4CAF50; }
+        .btn-clear { background-color: #9E9E9E; }
+        
+        #app-view { display: flex; flex-direction: column; height: 100%; position: relative; }
+        
+        .header { display: flex; align-items: center; justify-content: space-between; margin: 10px 0; position: relative; }
+        .hamburger { font-size: 28px; cursor: pointer; padding: 5px; color: var(--text-color); user-select: none; }
+        .app-name { font-size: 28px; font-weight: bold; color: var(--header-color); flex: 1; text-align: center; margin-right: 30px; }
+        #status-icon { font-size: 20px; margin-left: 5px; }
+        .current-path-info { text-align: center; font-size: 12px; color: var(--placeholder-color); margin-bottom: 15px; }
+        
+        .dropdown { display: none; position: absolute; top: 60px; left: 0; background-color: var(--dropdown-bg); border: 1px solid var(--input-border); border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 100; overflow: hidden; min-width: 200px; }
+        .dropdown-item { padding: 15px 20px; font-size: 16px; cursor: pointer; color: var(--text-color); border-bottom: 1px solid var(--input-border); }
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:hover { background-color: var(--dropdown-hover); }
+
+        /* แถบควบคุม: ปุ่มคำสั่ง | ตัวนับ | ส่ง */
+        .action-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 10px; }
+        
+        /* จัดกลุ่มปุ่ม ปิด, ไฟ, แบต ให้แชร์พื้นที่เท่าเดิม */
+        .left-buttons { display: flex; flex: 1; gap: 5px; }
+        .left-buttons .btn-action { padding: 12px 0; font-size: 14px; } /* ปรับขนาดตัวอักษรและระยะขอบเพื่อให้พอดีเมื่อแบ่ง 3 ปุ่ม */
+        
+        .char-count { font-size: 14px; font-weight: bold; color: var(--placeholder-color); width: 60px; text-align: center; }
+        .btn-send { background-color: #2196F3; }
+        
+        /* สีปุ่มคำสั่ง */
+        .btn-close { background-color: #F44336; }
+        .btn-light { background-color: #FF9800; }
+        .btn-bat { background-color: #9C27B0; }
+        
+        /* ช่องพิมพ์ข้อความ */
+        #input-text { width: 100%; height: 25%; min-height: 80px; padding: 15px; border: 1px solid var(--input-border); border-radius: 8px; font-size: 16px; resize: none; margin-bottom: 15px; background-color: var(--input-bg); color: var(--text-color); }
+
+        /* ช่องแสดงข้อความรับ */
+        .receive-container { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+        .receive-label { font-size: 16px; font-weight: bold; margin-bottom: 5px; color: var(--text-color); }
+        .received-box { flex: 1; border: 1px solid var(--input-border); background-color: var(--received-bg); border-radius: 8px; padding: 15px; overflow-y: auto; }
+        #received-text { font-size: 16px; color: var(--text-color); margin: 0; white-space: pre-wrap; word-break: break-all; }
+    </style>
+</head>
+<body>
+
+    <div id="settings-view" class="container">
+        <div class="title">ตั้งค่าเชื่อมต่อ Firebase</div>
+        <input type="text" id="apiKey" class="input-box" placeholder="API Key">
+        <input type="text" id="dbUrl" class="input-box" placeholder="Database URL">
+        <input type="text" id="projectId" class="input-box" placeholder="Project ID">
+        
+        <input type="text" id="groupName" class="input-box" placeholder="ชื่อกลุ่ม/ห้อง (เช่น group1)">
+        <div class="label-hint">เว้นว่างไว้จะส่งไปที่ห้องเริ่มต้น: messages</div>
+        
+        <div class="button-row">
+            <button id="clear-btn" class="btn-action btn-clear">ลบค่า</button>
+            <button id="save-btn" class="btn-action btn-save">บันทึก</button>
+        </div>
+    </div>
+
+    <div id="app-view" class="container">
+        <div class="header">
+            <div class="hamburger" id="menu-btn">☰</div>
+            <div class="app-name">MindTell <span id="status-icon">⛓️‍💥</span></div>
+        </div>
+        <div class="current-path-info" id="path-display">Path: -</div>
+
+        <div class="dropdown" id="dropdown-menu">
+            <div class="dropdown-item" id="nav-settings-btn">ตั้งค่าการส่งข้อความ</div>
+            <div class="dropdown-item" id="theme-toggle-btn">เปลี่ยนเป็นโหมดมืด</div>
+        </div>
+
+        <div class="action-bar">
+            <!-- กลุ่ม 3 ปุ่มที่ใช้ความกว้างรวมเท่ากับปุ่มเดิม -->
+            <div class="left-buttons">
+                <button id="close-btn" class="btn-action btn-close">ปิด</button>
+                <button id="light-btn" class="btn-action btn-light">ไฟ</button>
+                <button id="bat-btn" class="btn-action btn-bat">แบต</button>
+            </div>
+            
+            <div id="char-count" class="char-count">0/100</div>
+            <button id="send-btn" class="btn-action btn-send">ส่ง</button>
+        </div>
+        
+        <textarea id="input-text" placeholder="พิมพ์ข้อความที่นี่..."></textarea>
+
+        <div class="receive-container">
+            <div class="receive-label">ข้อความรับจาก Server:</div>
+            <div class="received-box">
+                <p id="received-text">กำลังรอข้อความ...</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp, getApps, deleteApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+        // ==========================================
+        const BASE_PATH = 'mindtell'; 
+        const MAX_CHARS = 100; 
+        // ==========================================
+
+        let db = null;
+        let activePath = `${BASE_PATH}/messages`; 
+
+        const settingsView = document.getElementById('settings-view');
+        const appView = document.getElementById('app-view');
+        const statusIcon = document.getElementById('status-icon');
+        const pathDisplay = document.getElementById('path-display');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const receivedElement = document.getElementById('received-text');
+        const themeToggleBtn = document.getElementById('theme-toggle-btn');
+        
+        const inputText = document.getElementById('input-text');
+        const charCount = document.getElementById('char-count');
+
+        // --- ตั้งค่าระบบนับตัวอักษร ---
+        inputText.maxLength = MAX_CHARS;
+        charCount.innerText = `0/${MAX_CHARS}`;
+
+        inputText.addEventListener('input', (e) => {
+            const currentLength = e.target.value.length;
+            charCount.innerText = `${currentLength}/${MAX_CHARS}`;
+        });
+
+        // --- ระบบ Theme ---
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            applyTheme(savedTheme);
+        }
+
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggleBtn.innerText = 'เปลี่ยนเป็นโหมดสว่าง';
+            } else {
+                document.body.classList.remove('dark-mode');
+                themeToggleBtn.innerText = 'เปลี่ยนเป็นโหมดมืด';
+            }
+            localStorage.setItem('theme', theme);
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            const isDark = document.body.classList.contains('dark-mode');
+            applyTheme(isDark ? 'light' : 'dark');
+            dropdownMenu.style.display = 'none';
+        });
+
+        // --- ระบบ Config ---
+        function loadConfig() {
+            const savedConfig = localStorage.getItem('firebaseConfig');
+            if (savedConfig) {
+                const config = JSON.parse(savedConfig);
+                document.getElementById('apiKey').value = config.apiKey || '';
+                document.getElementById('dbUrl').value = config.databaseURL || '';
+                document.getElementById('projectId').value = config.projectId || '';
+                document.getElementById('groupName').value = config.groupName || '';
+                
+                const group = config.groupName || 'messages';
+                activePath = `${BASE_PATH}/${group}`;
+                pathDisplay.innerText = `ส่งข้อมูลไปที่: ${activePath}`;
+                
+                connectToFirebase(config);
+            } else {
+                settingsView.style.display = 'flex';
+                appView.style.display = 'none';
+            }
+        }
+
+        // --- ระบบ Firebase ---
+        async function connectToFirebase(config) {
+            db = null;
+            receivedElement.innerText = "กำลังรอข้อความ...";
+            
+            if (!config.apiKey || !config.databaseURL || !config.projectId) {
+                statusIcon.innerText = '⛓️‍💥'; 
+                appView.style.display = 'flex';
+                settingsView.style.display = 'none';
+                return;
+            }
+
+            try {
+                if (getApps().length > 0) { await deleteApp(getApps()[0]); }
+                const app = initializeApp(config);
+                const auth = getAuth(app);
+                await signInAnonymously(auth);
+
+                db = getDatabase(app);
+                statusIcon.innerText = '🔗';
+                appView.style.display = 'flex';
+                settingsView.style.display = 'none';
+
+                const messageRef = ref(db, activePath);
+                onValue(messageRef, (snapshot) => {
+                    const data = snapshot.val();
+                    receivedElement.innerText = (data && data.text) ? data.text : "ยังไม่มีข้อความ...";
+                });
+            } catch (error) {
+                statusIcon.innerText = '⛓️‍💥';
+                appView.style.display = 'flex';
+                settingsView.style.display = 'none';
+            }
+        }
+
+        document.getElementById('save-btn').addEventListener('click', () => {
+            const config = {
+                apiKey: document.getElementById('apiKey').value.trim(),
+                databaseURL: document.getElementById('dbUrl').value.trim(),
+                projectId: document.getElementById('projectId').value.trim(),
+                groupName: document.getElementById('groupName').value.trim() 
+            };
+            localStorage.setItem('firebaseConfig', JSON.stringify(config));
+            
+            const group = config.groupName || 'messages';
+            activePath = `${BASE_PATH}/${group}`;
+            pathDisplay.innerText = `ส่งข้อมูลไปที่: ${activePath}`;
+            
+            connectToFirebase(config);
+        });
+
+        document.getElementById('clear-btn').addEventListener('click', () => {
+            ['apiKey', 'dbUrl', 'projectId', 'groupName'].forEach(id => document.getElementById(id).value = '');
+        });
+
+        document.getElementById('menu-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+        });
+
+        document.addEventListener('click', () => { dropdownMenu.style.display = 'none'; });
+
+        document.getElementById('nav-settings-btn').addEventListener('click', () => {
+            appView.style.display = 'none';
+            settingsView.style.display = 'flex';
+        });
+
+        // --- ระบบส่งข้อความ ---
+        function sendMessage(textToSend) {
+            if (!db) { alert('เชื่อมต่อไม่สมบูรณ์'); return; }
+            if (!textToSend.trim()) return;
+            
+            set(ref(db, activePath), { 
+                text: textToSend, 
+                timestamp: Date.now() 
+            })
+            .then(() => { 
+                // เพิ่มเงื่อนไขไม่ให้ลบกล่องข้อความเมื่อกดส่งผ่านปุ่มคำสั่ง (ปิด, ไฟ, แบต)
+                if (textToSend !== "==END==" && textToSend !== "==RGB==" && textToSend !== "==BAT==") {
+                    inputText.value = ''; 
+                    charCount.innerText = `0/${MAX_CHARS}`;
+                }
+            })
+            .catch((err) => alert('ส่งไม่สำเร็จ: ' + err.message));
+        }
+
+        // --- เพิ่ม Event Listener ให้ปุ่มทั้ง 3 ทำงานตามคำสั่ง ---
+        document.getElementById('send-btn').addEventListener('click', () => sendMessage(inputText.value));
+        document.getElementById('close-btn').addEventListener('click', () => sendMessage('==END=='));
+        document.getElementById('light-btn').addEventListener('click', () => sendMessage('==RGB=='));
+        document.getElementById('bat-btn').addEventListener('click', () => sendMessage('==BAT=='));
+
+        initTheme();
+        loadConfig();
+    </script>
+</body>
+</html>
